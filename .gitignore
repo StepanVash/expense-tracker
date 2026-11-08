@@ -1,0 +1,17 @@
+node_modules
+dist
+*.local
+.vite
+.vitest-cache
+
+# Personal financial data – never commit real exports or backups
+backups/
+*.backup.json
+docs/*.xlsx
+
+# Editor / OS
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+Thumbs.db
