@@ -4,7 +4,7 @@ import {
   LayoutDashboard,
   ListOrdered,
   CalendarRange,
-  Settings,
+  Settings as SettingsIcon,
   ChevronLeft,
   ChevronRight,
   TrendingUp,
@@ -13,18 +13,18 @@ import {
 } from 'lucide-react'
 import { getTransactionsForMonth } from './storage.js'
 import { formatMoney, formatMonth, currentMonth, shiftMonth } from './format.js'
+import Settings from './pages/Settings.jsx'
 
 const TABS = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { id: 'transactions', label: 'Transactions', icon: ListOrdered },
   { id: 'year', label: 'Year', icon: CalendarRange },
-  { id: 'settings', label: 'Settings', icon: Settings },
+  { id: 'settings', label: 'Settings', icon: SettingsIcon },
 ]
 
 const COMING_SOON = {
   transactions: { step: 3, text: 'Add, edit, search and filter your income and expenses.' },
   year: { step: 6, text: 'Month × category table and yearly trends (replaces the "2026" sheet).' },
-  settings: { step: 2, text: 'Manage categories, budgets and backups.' },
 }
 
 export default function App() {
@@ -60,7 +60,9 @@ export default function App() {
       </nav>
 
       <main className="content">
-        {tab === 'dashboard' ? <Dashboard month={month} /> : <ComingSoon {...COMING_SOON[tab]} />}
+        {tab === 'dashboard' && <Dashboard month={month} />}
+        {tab === 'settings' && <Settings />}
+        {COMING_SOON[tab] && <ComingSoon {...COMING_SOON[tab]} />}
       </main>
     </div>
   )

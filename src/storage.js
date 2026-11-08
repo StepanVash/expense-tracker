@@ -9,7 +9,7 @@
  * ----------
  * transaction = { id, type: 'income' | 'expense', date: 'YYYY-MM-DD',
  *                 amount: number (PLN, > 0), title: string, categoryId: string }
- * category    = { id, name, emoji, type: 'income' | 'expense', color }
+ * category    = { id, name, emoji, type: 'income' | 'expense', color, excelName? }
  * budget      = { categoryId, month: 'YYYY-MM', planned: number }
  */
 
@@ -78,7 +78,17 @@ function validateCategory(c) {
   const name = String(c.name ?? '').trim()
   if (!name) throw new Error('Category name is required.')
   if (!TYPES.includes(c.type)) throw new Error('Category type must be "income" or "expense".')
-  return { name, emoji: c.emoji ?? '', type: c.type, color: c.color ?? '#888888' }
+  const cat = { name, emoji: String(c.emoji ?? '').trim(), type: c.type, color: c.color ?? '#888888' }
+  if (c.excelName) cat.excelName = c.excelName
+  return cat
+}
+
+/** Names must be unique within income or within expenses (case-insensitive). */
+function assertUniqueName(categories, cat, ignoreId = null) {
+  const clash = categories.find(
+    (c) => c.id !== ignoreId && c.type === cat.type && c.name.toLowerCase() === cat.name.toLowerCase(),
+  )
+  if (clash) throw new Error(`A ${cat.type} category called "${cat.name}" already exists.`)
 }
 
 // ---------- transactions ----------
@@ -119,9 +129,26 @@ export function getCategories() {
   return load().categories
 }
 
+/**
+ * On the very first run, fill in the default categories.
+ * Runs only once – if you later delete categories, they are not re-created.
+ */
+export function ensureDefaultCategories(defaults) {
+  update((d) => {
+    if (d.categoriesSeeded) return
+    if (d.categories.length === 0) {
+      d.categories = defaults.map((c) => ({ id: newId(), ...validateCategory(c) }))
+    }
+    d.categoriesSeeded = true
+  })
+}
+
 export function addCategory(input) {
   const cat = { id: newId(), ...validateCategory(input) }
-  update((d) => d.categories.push(cat))
+  update((d) => {
+    assertUniqueName(d.categories, cat)
+    d.categories.push(cat)
+  })
   return cat
 }
 
@@ -129,8 +156,11 @@ export function updateCategory(id, patch) {
   return update((d) => {
     const i = d.categories.findIndex((c) => c.id === id)
     if (i === -1) throw new Error(`Category ${id} not found.`)
-    d.categories[i] = { id, ...validateCategory({ ...d.categories[i], ...patch }) }
-    return d.categories[i]
+    const next = { id, ...validateCategory({ ...d.categories[i], ...patch }) }
+    if (next.type !== d.categories[i].type) throw new Error('A category cannot change between income and expense.')
+    assertUniqueName(d.categories, next, id)
+    d.categories[i] = next
+    return next
   })
 }
 

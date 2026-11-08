@@ -43,6 +43,35 @@ describe('transactions', () => {
 })
 
 describe('categories & budgets', () => {
+  it('seeds default categories only once', () => {
+    const defaults = [
+      { type: 'expense', name: 'Grocery', emoji: '🥝' },
+      { type: 'income', name: 'Salary', emoji: '💼' },
+    ]
+    storage.ensureDefaultCategories(defaults)
+    expect(storage.getCategories()).toHaveLength(2)
+
+    // user deletes everything -> defaults must NOT come back
+    storage.getCategories().forEach((c) => storage.deleteCategory(c.id))
+    storage.ensureDefaultCategories(defaults)
+    expect(storage.getCategories()).toHaveLength(0)
+  })
+
+  it('does not allow duplicate names within the same type', () => {
+    storage.addCategory({ name: 'Other', type: 'expense' })
+    expect(() => storage.addCategory({ name: 'other', type: 'expense' })).toThrow(/already exists/)
+    // the same name is fine for income
+    expect(() => storage.addCategory({ name: 'Other', type: 'income' })).not.toThrow()
+  })
+
+  it('renames a category but not into an existing name', () => {
+    const a = storage.addCategory({ name: 'Food', type: 'expense' })
+    storage.addCategory({ name: 'Rent', type: 'expense' })
+    expect(storage.updateCategory(a.id, { name: 'Grocery', emoji: '🥝' }).name).toBe('Grocery')
+    expect(() => storage.updateCategory(a.id, { name: 'Rent' })).toThrow(/already exists/)
+    expect(() => storage.updateCategory(a.id, { type: 'income' })).toThrow()
+  })
+
   it('deleting a category un-categorizes its transactions and removes its budgets', () => {
     const cat = storage.addCategory({ name: 'Grocery', emoji: '🥝', type: 'expense' })
     const tx = storage.addTransaction({ type: 'expense', date: '2026-01-02', amount: 10, categoryId: cat.id })
