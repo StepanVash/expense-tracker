@@ -10,6 +10,7 @@ backups/
 docs/*.xlsx
 
 # Editor / OS
+*.lnk
 .vscode/*
 !.vscode/extensions.json
 .idea
