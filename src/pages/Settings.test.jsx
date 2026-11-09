@@ -76,6 +76,21 @@ describe('Settings page', () => {
     expect(container.querySelector('.error').textContent).toMatch(/already exists/)
   })
 
+  it('stops at 50 symbols and shows an error message', () => {
+    const form = container.querySelectorAll('.add-category form')[0]
+    const input = form.querySelector('.name-input')
+
+    act(() => type(input, 'x'.repeat(50)))
+    expect(container.querySelector('.error')).toBeNull() // exactly 50 is fine
+
+    act(() => type(input, 'x'.repeat(51)))
+    expect(input.value).toHaveLength(50) // extra symbol refused
+    expect(container.querySelector('.error').textContent).toMatch(/cannot be longer than 50 symbols/)
+
+    act(() => type(input, 'short')) // error disappears once the user fixes it
+    expect(container.querySelector('.error')).toBeNull()
+  })
+
   it('renames a category', () => {
     act(() => container.querySelector('[aria-label="Edit Coffee"]').click())
     const input = container.querySelector('.category-list .name-input')

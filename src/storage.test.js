@@ -64,6 +64,13 @@ describe('categories & budgets', () => {
     expect(() => storage.addCategory({ name: 'Other', type: 'income' })).not.toThrow()
   })
 
+  it('limits category names to 50 symbols', () => {
+    expect(() => storage.addCategory({ name: 'a'.repeat(50), type: 'expense' })).not.toThrow()
+    expect(() => storage.addCategory({ name: 'b'.repeat(51), type: 'expense' })).toThrow(/50 symbols/)
+    const c = storage.addCategory({ name: 'ok', type: 'expense' })
+    expect(() => storage.updateCategory(c.id, { name: 'c'.repeat(51) })).toThrow(/50 symbols/)
+  })
+
   it('renames a category but not into an existing name', () => {
     const a = storage.addCategory({ name: 'Food', type: 'expense' })
     storage.addCategory({ name: 'Rent', type: 'expense' })

@@ -6,6 +6,7 @@ import {
   addCategory,
   updateCategory,
   deleteCategory,
+  MAX_CATEGORY_NAME_LENGTH,
 } from '../storage.js'
 import { COLOR_PALETTE } from '../defaultCategories.js'
 import EmojiPicker from '../components/EmojiPicker.jsx'
@@ -119,6 +120,18 @@ function CategoryForm({ initial, submitLabel, onSubmit, onCancel, resetAfterSubm
   const [color, setColor] = useState(initial.color)
   const [error, setError] = useState('')
 
+  function handleNameChange(e) {
+    const symbols = [...e.target.value]
+    if (symbols.length > MAX_CATEGORY_NAME_LENGTH) {
+      // refuse the extra symbols and tell the user why
+      setName(symbols.slice(0, MAX_CATEGORY_NAME_LENGTH).join(''))
+      setError(`Category name cannot be longer than ${MAX_CATEGORY_NAME_LENGTH} symbols.`)
+    } else {
+      setName(e.target.value)
+      setError('')
+    }
+  }
+
   function handleSubmit(e) {
     e.preventDefault()
     try {
@@ -139,7 +152,7 @@ function CategoryForm({ initial, submitLabel, onSubmit, onCancel, resetAfterSubm
       <input
         className="name-input"
         value={name}
-        onChange={(e) => setName(e.target.value)}
+        onChange={handleNameChange}
         placeholder={submitLabel === 'Add' ? 'New category name' : 'Name'}
         aria-label="Category name"
         autoFocus={!!onCancel}

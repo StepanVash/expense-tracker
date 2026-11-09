@@ -74,9 +74,17 @@ function validateTransaction(t) {
   }
 }
 
+export const MAX_CATEGORY_NAME_LENGTH = 50
+
+/** Length in visible symbols (an emoji counts as 1, not 2). */
+const symbolCount = (s) => [...s].length
+
 function validateCategory(c) {
   const name = String(c.name ?? '').trim()
   if (!name) throw new Error('Category name is required.')
+  if (symbolCount(name) > MAX_CATEGORY_NAME_LENGTH) {
+    throw new Error(`Category name cannot be longer than ${MAX_CATEGORY_NAME_LENGTH} symbols.`)
+  }
   if (!TYPES.includes(c.type)) throw new Error('Category type must be "income" or "expense".')
   const cat = { name, emoji: String(c.emoji ?? '').trim(), type: c.type, color: c.color ?? '#888888' }
   if (c.excelName) cat.excelName = c.excelName
