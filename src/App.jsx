@@ -15,6 +15,7 @@ import { getTransactionsForMonth, MIN_MONTH } from './storage.js'
 import { formatMoney, formatMonth, currentMonth, shiftMonth } from './format.js'
 import Settings from './pages/Settings.jsx'
 import Transactions from './pages/Transactions.jsx'
+import MonthYearPicker from './components/MonthYearPicker.jsx'
 
 const TABS = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -42,21 +43,7 @@ export default function App() {
           <span>Expense Tracker</span>
         </div>
 
-        <div className="month-picker" aria-label="Selected month">
-          <button
-            className="icon-btn"
-            onClick={() => setMonth(shiftMonth(month, -1))}
-            disabled={atStart}
-            aria-label="Previous month"
-            title={atStart ? 'The tracker starts in January 2026' : undefined}
-          >
-            <ChevronLeft size={18} />
-          </button>
-          <span className="month-label">{formatMonth(month)}</span>
-          <button className="icon-btn" onClick={() => setMonth(shiftMonth(month, 1))} aria-label="Next month">
-            <ChevronRight size={18} />
-          </button>
-        </div>
+        <MonthYearPicker month={month} onChange={setMonth} />
       </header>
 
       <nav className="tabs">

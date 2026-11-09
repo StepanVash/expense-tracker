@@ -54,6 +54,7 @@ button {
 }
 
 .month-picker {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -63,10 +64,112 @@ button {
   padding: 4px;
 }
 
-.month-label {
-  min-width: 140px;
-  text-align: center;
+.month-label-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 150px;
+  padding: 4px 10px;
+  border: none;
+  background: transparent;
+  color: var(--text);
   font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.month-label-btn:hover {
+  background: var(--bg);
+}
+
+.cal-icon {
+  color: var(--muted);
+}
+
+.month-popup {
+  position: absolute;
+  top: 44px;
+  right: 0;
+  z-index: 30;
+  width: 250px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  padding: 12px;
+}
+
+.popup-year-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 4px 6px;
+  border-bottom: 1px solid var(--border);
+}
+
+.popup-year-label {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.popup-months-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin: 10px 0;
+}
+
+.popup-month-cell {
+  border: none;
+  background: #f8fafc;
+  border-radius: 8px;
+  padding: 8px 0;
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--text);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.popup-month-cell:hover:not(:disabled) {
+  background: #edf5f2;
+  color: var(--primary);
+}
+
+.popup-month-cell.active {
+  background: var(--primary);
+  color: #fff;
+  font-weight: 700;
+}
+
+.popup-month-cell:disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
+  background: transparent;
+}
+
+.popup-footer {
+  text-align: center;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+
+.text-btn {
+  border: none;
+  background: transparent;
+  color: var(--primary);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.text-btn:hover {
+  background: var(--bg);
 }
 
 .icon-btn {

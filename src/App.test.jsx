@@ -65,6 +65,26 @@ describe('App', () => {
     expect(container.querySelector('.month-label').textContent).toBe('January 2026')
   })
 
+  it('allows picking any month and year directly (e.g. Apr 2027)', () => {
+    render()
+    expect(container.querySelector('.month-popup')).toBeNull()
+
+    // open month picker popup
+    click(container.querySelector('[aria-label="Select month and year"]'))
+    expect(container.querySelector('.month-popup')).not.toBeNull()
+
+    // advance year to 2027
+    click(container.querySelector('[aria-label="Next year"]'))
+    expect(container.querySelector('.popup-year-label').textContent).toBe('2027')
+
+    // click Apr
+    click(container.querySelector('[aria-label="Apr 2027"]'))
+
+    // popup closed and header displays April 2027
+    expect(container.querySelector('.month-popup')).toBeNull()
+    expect(container.querySelector('.month-label').textContent).toBe('April 2027')
+  })
+
   it('summarises income, expenses and savings for the selected month only', () => {
     const m = currentMonth()
     storage.addTransaction({ type: 'income', date: `${m}-05`, amount: 1000 })
