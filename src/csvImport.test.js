@@ -180,4 +180,51 @@ Date,Transaction type,Description,Settlement amount,Settlement currency,Original
     undoImport(result)
     expect(storage.getTransactions()).toHaveLength(0)
   })
+
+  it('remembers user selected category for a merchant and automatically parses next CSVs with it', () => {
+    const categories = storage.getCategories()
+    const cafeCat = categories.find((c) => c.name.includes('Cafe'))
+
+    // 1st CSV has an unknown custom merchant
+    const firstCsv = `Date,Description,Amount\n01.10.2026,MY SPECIAL ARTISAN BAKERY 01,-25.00`
+    const { rows: firstRows } = parseCsv(firstCsv, ',')
+    const firstMapping = detectColumns(firstRows[0], firstRows.slice(1))
+
+    const firstPreview = buildPreview({
+      rows: firstRows.slice(1),
+      mapping: firstMapping,
+      options: { amountMode: 'sign', createCategories: true },
+      categories,
+      transactions: [],
+    })
+
+    // Initially uncategorized
+    expect(firstPreview[0].categoryId).toBeNull()
+
+    // User chooses "Cafe & Entertainment" for this record
+    firstPreview[0].categoryId = cafeCat.id
+
+    // User imports it
+    applyImport(firstPreview, new Set([firstPreview[0].rowNumber]))
+
+    // Check that learned rule was saved
+    const learned = storage.getLearnedRules()
+    expect(learned.length).toBeGreaterThan(0)
+
+    // 2nd CSV later has the same merchant with a different branch or date
+    const secondCsv = `Date,Description,Amount\n15.11.2026,MY SPECIAL ARTISAN BAKERY 02 BRANCH B,-30.00`
+    const { rows: secondRows } = parseCsv(secondCsv, ',')
+    const secondMapping = detectColumns(secondRows[0], secondRows.slice(1))
+
+    const secondPreview = buildPreview({
+      rows: secondRows.slice(1),
+      mapping: secondMapping,
+      options: { amountMode: 'sign', createCategories: true },
+      categories,
+      transactions: storage.getTransactions(),
+    })
+
+    // Automatically categorized using the remembered rule!
+    expect(secondPreview[0].categoryId).toBe(cafeCat.id)
+  })
 })

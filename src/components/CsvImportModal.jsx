@@ -24,6 +24,7 @@ import {
   TEMPLATE_CSV,
 } from '../csvImport.js'
 import { formatDate, formatMoney, formatMonth } from '../format.js'
+import { extractCoreMerchantPattern } from '../learnedRules.js'
 
 export default function CsvImportModal({
   isOpen,
@@ -172,10 +173,28 @@ export default function CsvImportModal({
   }
 
   function handleCategoryChange(rowNumber, catId) {
-    setEditedCategories((prev) => ({
-      ...prev,
-      [rowNumber]: catId,
-    }))
+    const changedItem = previewItems.find((i) => i.rowNumber === rowNumber)
+    if (!changedItem) return
+
+    const core = extractCoreMerchantPattern(changedItem.rawTitle || changedItem.title)
+    const titleNorm = changedItem.title.toLowerCase()
+
+    setEditedCategories((prev) => {
+      const next = { ...prev, [rowNumber]: catId }
+      // Auto-assign to any other item in this import that shares the same merchant
+      previewItems.forEach((other) => {
+        if (other.rowNumber === rowNumber || other.type !== changedItem.type) return
+        if (prev[other.rowNumber] !== undefined) return // already manually overridden
+
+        const otherCore = extractCoreMerchantPattern(other.rawTitle || other.title)
+        const otherTitle = other.title.toLowerCase()
+
+        if (otherTitle === titleNorm || (core && core.length >= 3 && otherCore === core)) {
+          next[other.rowNumber] = catId
+        }
+      })
+      return next
+    })
   }
 
   function handleImport() {

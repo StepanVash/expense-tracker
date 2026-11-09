@@ -16,9 +16,12 @@ import {
   deleteTransactions,
   getCategories,
   getTransactions,
+  getLearnedRules,
+  saveLearnedRules,
 } from './storage.js'
 import { searchable, suggestCategoryId, suggestCategoryIdFromDescription } from './suggest.js'
 import { MERCHANT_RULES, INCOME_RULES } from './merchantRules.js'
+import { matchLearnedRule, extractCoreMerchantPattern } from './learnedRules.js'
 import { COLOR_PALETTE } from './defaultCategories.js'
 
 const MAX_TITLE = 100
@@ -459,6 +462,7 @@ export function buildPreview({
   options,
   categories,
   transactions,
+  learnedRules = getLearnedRules(),
   firstRowNumber = 1,
   ownerName = '',
 }) {
@@ -526,6 +530,8 @@ export function buildPreview({
       else item.categoryNote = `Unknown category "${rawCategory}"`
     } else {
       item.categoryId =
+        matchLearnedRule(rawTitle, learnedRules, item.type, categories) ??
+        matchLearnedRule(item.title, learnedRules, item.type, categories) ??
         suggestCategoryId(item.title, transactions, item.type, categories) ??
         suggestCategoryIdFromDescription(rawTitle, transactions, item.type, categories) ??
         categoryFromRules(rawTitle, item.type, categories)
@@ -617,6 +623,22 @@ export function applyImport(items, selected) {
       categoryId: i.newCategoryName ? idByNew.get(newKey(i)) : i.categoryId,
     })),
   )
+
+  // Learn categorization rules for all imported items so future CSV imports auto-map them
+  const rulesToSave = []
+  for (const item of chosen) {
+    const finalCatId = item.newCategoryName ? idByNew.get(newKey(item)) : item.categoryId
+    if (!finalCatId) continue
+    if (item.title) {
+      rulesToSave.push({ pattern: item.title, categoryId: finalCatId, type: item.type })
+    }
+    const core = extractCoreMerchantPattern(item.rawTitle || item.title)
+    if (core && core.length >= 3 && core !== item.title.toLowerCase()) {
+      rulesToSave.push({ pattern: core, categoryId: finalCatId, type: item.type })
+    }
+  }
+  saveLearnedRules(rulesToSave)
+
   return { transactionIds: created.map((t) => t.id), categoryIds, summary }
 }
 

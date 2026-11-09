@@ -25,7 +25,7 @@ export const MIN_MONTH = '2026-01'
 export const MIN_DATE = `${MIN_MONTH}-01`
 
 function emptyData() {
-  return { version: DATA_VERSION, transactions: [], categories: [], budgets: [] }
+  return { version: DATA_VERSION, transactions: [], categories: [], budgets: [], learnedRules: [] }
 }
 
 function newId() {
@@ -40,7 +40,7 @@ function load() {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (!raw) return emptyData()
     const data = JSON.parse(raw)
-    return { ...emptyData(), ...data }
+    return { ...emptyData(), ...data, learnedRules: data.learnedRules ?? [] }
   } catch (err) {
     console.error('Could not read saved data, starting empty.', err)
     return emptyData()
@@ -199,6 +199,7 @@ export function deleteCategory(id) {
   update((d) => {
     d.categories = d.categories.filter((c) => c.id !== id)
     d.budgets = d.budgets.filter((b) => b.categoryId !== id)
+    d.learnedRules = (d.learnedRules || []).filter((r) => r.categoryId !== id)
     d.transactions.forEach((t) => {
       if (t.categoryId === id) t.categoryId = null
     })
@@ -221,6 +222,47 @@ export function setBudget(categoryId, month, planned) {
   update((d) => {
     d.budgets = d.budgets.filter((b) => !(b.categoryId === categoryId && b.month === month))
     if (value > 0) d.budgets.push({ categoryId, month, planned: round2(value) })
+  })
+}
+
+// ---------- learned category rules ----------
+
+export function getLearnedRules() {
+  return load().learnedRules ?? []
+}
+
+export function saveLearnedRule(rule) {
+  const pattern = String(rule.pattern ?? '').trim().toLowerCase()
+  if (!pattern || !rule.categoryId || !TYPES.includes(rule.type)) return null
+  return update((d) => {
+    d.learnedRules = d.learnedRules ?? []
+    const idx = d.learnedRules.findIndex(
+      (r) => r.type === rule.type && r.pattern.toLowerCase() === pattern,
+    )
+    const entry = {
+      id: idx >= 0 ? d.learnedRules[idx].id : newId(),
+      pattern,
+      categoryId: rule.categoryId,
+      type: rule.type,
+      updatedAt: new Date().toISOString(),
+    }
+    if (idx >= 0) {
+      d.learnedRules[idx] = entry
+    } else {
+      d.learnedRules.push(entry)
+    }
+    return entry
+  })
+}
+
+export function saveLearnedRules(rules) {
+  if (!Array.isArray(rules) || !rules.length) return
+  rules.forEach((r) => saveLearnedRule(r))
+}
+
+export function deleteLearnedRule(id) {
+  update((d) => {
+    d.learnedRules = (d.learnedRules ?? []).filter((r) => r.id !== id)
   })
 }
 
