@@ -136,6 +136,23 @@ export function deleteTransaction(id) {
   })
 }
 
+/**
+ * Add many transactions at once (used by the CSV import).
+ * All of them are checked first: if any one is invalid, NOTHING is saved.
+ */
+export function addTransactions(inputs) {
+  const txs = inputs.map((input) => ({ id: newId(), ...validateTransaction(input) }))
+  update((d) => d.transactions.push(...txs))
+  return txs
+}
+
+export function deleteTransactions(ids) {
+  const set = new Set(ids)
+  update((d) => {
+    d.transactions = d.transactions.filter((t) => !set.has(t.id))
+  })
+}
+
 // ---------- categories ----------
 
 export function getCategories() {

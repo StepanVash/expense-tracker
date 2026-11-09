@@ -234,3 +234,16 @@ describe('editing and deleting', () => {
     expect(rows()).toHaveLength(0)
   })
 })
+
+describe('CSV import modal integration', () => {
+  it('opens and closes the CSV modal', () => {
+    mount()
+    expect(q('.modal-backdrop')).toBeNull()
+    act(() => q('[aria-label="Upload CSV"]').click())
+    expect(q('.modal-backdrop')).not.toBeNull()
+    expect(q('.modal-card').textContent).toContain('Upload CSV Statement')
+
+    act(() => q('[aria-label="Close modal"]').click())
+    expect(q('.modal-backdrop')).toBeNull()
+  })
+})

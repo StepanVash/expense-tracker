@@ -48,3 +48,35 @@ export function suggestCategoryId(title, transactions, type, categories) {
   })
   return similar.length ? mostCommonCategory(similar) : null
 }
+
+/** Lower-case, no accents, only letters/digits separated by single spaces. */
+export function searchable(s) {
+  return String(s ?? '')
+    .toLowerCase()
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/ł/g, 'l')
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim()
+}
+
+/**
+ * For long, messy descriptions (bank statements): find earlier titles that appear INSIDE the text.
+ * Example: earlier "biedronka" -> Grocery; text "JMP S.A. BIEDRONKA 151 KRAKOW" -> Grocery.
+ * The longest matching earlier title wins.
+ */
+export function suggestCategoryIdFromDescription(text, transactions, type, categories) {
+  const hay = ` ${searchable(text)} `
+  if (hay.trim().length < 4) return null
+
+  const valid = new Set(categories.filter((c) => c.type === type).map((c) => c.id))
+  const matches = transactions.filter((t) => {
+    if (t.type !== type || !t.categoryId || !valid.has(t.categoryId)) return false
+    const known = searchable(t.title)
+    return known.length >= 4 && hay.includes(` ${known} `)
+  })
+  if (!matches.length) return null
+
+  const longest = Math.max(...matches.map((t) => searchable(t.title).length))
+  return mostCommonCategory(matches.filter((t) => searchable(t.title).length === longest))
+}

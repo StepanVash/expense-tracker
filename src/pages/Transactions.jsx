@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Pencil, Trash2, Search } from 'lucide-react'
+import { Pencil, Trash2, Search, Upload, RotateCcw } from 'lucide-react'
 import {
   getTransactions,
   getCategories,
@@ -9,19 +9,50 @@ import {
 } from '../storage.js'
 import { formatDate, formatMoney, formatMonth, todayISO } from '../format.js'
 import TransactionForm from '../components/TransactionForm.jsx'
+import CsvImportModal from '../components/CsvImportModal.jsx'
+import { undoImport } from '../csvImport.js'
 
 export default function Transactions({ month }) {
   const [transactions, setTransactions] = useState(getTransactions)
-  const [categories] = useState(getCategories)
+  const [categories, setCategories] = useState(getCategories)
   const [editingId, setEditingId] = useState(null)
   const [notice, setNotice] = useState('')
+  const [isCsvModalOpen, setIsCsvModalOpen] = useState(false)
+  const [lastImport, setLastImport] = useState(null)
 
   const [search, setSearch] = useState('')
   const [typeFilter, setTypeFilter] = useState('all') // all | income | expense
   const [categoryFilter, setCategoryFilter] = useState('all') // all | none | <category id>
 
-  const refresh = () => setTransactions(getTransactions())
+  const refresh = () => {
+    setTransactions(getTransactions())
+    setCategories(getCategories())
+  }
   const categoryById = useMemo(() => new Map(categories.map((c) => [c.id, c])), [categories])
+
+  function handleImportComplete(result) {
+    refresh()
+    setLastImport(result)
+    const { summary } = result
+    const monthText =
+      summary.byMonth.length === 1
+        ? `in ${formatMonth(summary.byMonth[0].month)}`
+        : `across ${summary.byMonth.length} months (${summary.byMonth.map((m) => formatMonth(m.month)).join(', ')})`
+
+    setNotice(
+      `Imported ${summary.toImport} transactions ${monthText} (+${formatMoney(summary.income)}, −${formatMoney(summary.expenses)}) ✓`,
+    )
+  }
+
+  function handleUndo() {
+    if (!lastImport) return
+    if (window.confirm('Undo the last CSV import and remove the imported transactions?')) {
+      undoImport(lastImport)
+      setLastImport(null)
+      refresh()
+      setNotice('Import undone ✓')
+    }
+  }
 
   // Date proposed in the "add" form: today if it is in the selected month, else the 1st of it.
   const today = todayISO()
@@ -72,7 +103,19 @@ export default function Transactions({ month }) {
   return (
     <div className="transactions">
       <section className="panel">
-        <h2>Add transaction</h2>
+        <div className="panel-header-actions">
+          <h2>Add transaction</h2>
+          <button
+            type="button"
+            className="btn"
+            onClick={() => setIsCsvModalOpen(true)}
+            aria-label="Upload CSV"
+          >
+            <Upload size={16} />
+            <span>Upload CSV</span>
+          </button>
+        </div>
+
         <TransactionForm
           key={month}
           categories={categories}
@@ -83,11 +126,25 @@ export default function Transactions({ month }) {
           onSubmit={handleAdd}
         />
         {notice && (
-          <p className="notice" role="status">
-            {notice}
-          </p>
+          <div className="notice-banner notice" role="status">
+            <span>{notice}</span>
+            {lastImport && (
+              <button type="button" className="btn small" onClick={handleUndo}>
+                <RotateCcw size={14} />
+                <span>Undo import</span>
+              </button>
+            )}
+          </div>
         )}
       </section>
+
+      <CsvImportModal
+        isOpen={isCsvModalOpen}
+        onClose={() => setIsCsvModalOpen(false)}
+        categories={categories}
+        transactions={transactions}
+        onImportComplete={handleImportComplete}
+      />
 
       <section className="panel">
         <h2>
