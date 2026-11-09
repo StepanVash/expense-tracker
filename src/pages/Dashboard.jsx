@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import {
   TrendingUp,
   TrendingDown,
@@ -14,6 +14,7 @@ import {
   Check,
 } from 'lucide-react'
 import {
+  getTransactions,
   getTransactionsForMonth,
   getCategories,
   getBudgets,
@@ -26,6 +27,7 @@ export default function Dashboard({ month, onNavigateTab }) {
   const [dataVersion, setDataVersion] = useState(0)
   const refresh = () => setDataVersion((v) => v + 1)
 
+  const allTransactions = useMemo(() => getTransactions(), [dataVersion])
   const transactions = useMemo(() => getTransactionsForMonth(month), [month, dataVersion])
   const categories = useMemo(() => getCategories(), [dataVersion])
   const budgets = useMemo(() => getBudgets(month), [month, dataVersion])
@@ -38,7 +40,26 @@ export default function Dashboard({ month, onNavigateTab }) {
     return new Map(budgets.map((b) => [b.categoryId, b.planned]))
   }, [budgets])
 
-  // --- Summary metrics
+  // Average monthly spending per category from active months (matching Avg/Mo from Analytics matrix)
+  const avgMap = useMemo(() => {
+    const yearPrefix = `${month.slice(0, 4)}-`
+    const yearTxs = allTransactions.filter((t) => t.date.startsWith(yearPrefix))
+    const targetTxs = yearTxs.length > 0 ? yearTxs : allTransactions
+
+    const activeMonths = new Set(targetTxs.map((t) => t.date.slice(0, 7)))
+    const activeCount = activeMonths.size || 1
+
+    const map = new Map()
+    for (const cat of categories) {
+      const total = targetTxs
+        .filter((t) => t.categoryId === cat.id)
+        .reduce((sum, t) => sum + t.amount, 0)
+      map.set(cat.id, Math.round((total / activeCount) * 100) / 100)
+    }
+    return map
+  }, [allTransactions, categories, month])
+
+  // --- Summary metrics for the 4 top cards (100% original behavior)
   const totals = useMemo(() => {
     const income = transactions
       .filter((t) => t.type === 'income')
@@ -112,7 +133,8 @@ export default function Dashboard({ month, onNavigateTab }) {
     const incomeList = categories.filter((c) => c.type === 'income')
 
     const calcRow = (cat) => {
-      const planned = budgetMap.get(cat.id) || 0
+      // Precalculated based on Avg/Mo column unless user set an explicit custom budget
+      const planned = budgetMap.has(cat.id) ? (budgetMap.get(cat.id) || 0) : (avgMap.get(cat.id) || 0)
       const actual = transactions
         .filter((t) => t.categoryId === cat.id)
         .reduce((sum, t) => sum + t.amount, 0)
@@ -134,7 +156,11 @@ export default function Dashboard({ month, onNavigateTab }) {
       expenses: expenseList.map(calcRow).sort((a, b) => b.actual - a.actual || b.planned - a.planned),
       income: incomeList.map(calcRow).sort((a, b) => b.actual - a.actual),
     }
-  }, [categories, budgetMap, transactions])
+  }, [categories, budgetMap, avgMap, transactions])
+
+  const tablePlannedExpenses = useMemo(() => {
+    return budgetRows.expenses.reduce((sum, r) => sum + r.planned, 0)
+  }, [budgetRows.expenses])
 
   return (
     <div className="dashboard-page">
@@ -165,7 +191,7 @@ export default function Dashboard({ month, onNavigateTab }) {
         </div>
       </div>
 
-      {/* 4 Summary Metric Cards */}
+      {/* 4 Summary Metric Cards (exact original cards and structure) */}
       <section className="cards">
         <SummaryCard
           label="Income"
@@ -305,7 +331,7 @@ export default function Dashboard({ month, onNavigateTab }) {
           </div>
           <div className="budget-summary-pills">
             <span className="pill green">
-              Planned: {formatMoney(totals.plannedExpenses)}
+              Planned: {formatMoney(tablePlannedExpenses)}
             </span>
             <span className="pill gray">
               Actual: {formatMoney(totals.expenses)}
@@ -340,31 +366,31 @@ export default function Dashboard({ month, onNavigateTab }) {
                   <strong>Total Expenses</strong>
                 </td>
                 <td>
-                  <strong>{formatMoney(totals.plannedExpenses)}</strong>
+                  <strong>{formatMoney(tablePlannedExpenses)}</strong>
                 </td>
                 <td>
                   <strong>{formatMoney(totals.expenses)}</strong>
                 </td>
-                <td className={totals.expenses > totals.plannedExpenses && totals.plannedExpenses > 0 ? 'over' : ''}>
+                <td className={totals.expenses > tablePlannedExpenses && tablePlannedExpenses > 0 ? 'over' : ''}>
                   <strong>
-                    {totals.plannedExpenses > 0
-                      ? totals.plannedExpenses >= totals.expenses
-                        ? `+${formatMoney(totals.plannedExpenses - totals.expenses)} left`
-                        : `−${formatMoney(totals.expenses - totals.plannedExpenses)} over`
+                    {tablePlannedExpenses > 0
+                      ? tablePlannedExpenses >= totals.expenses
+                        ? `+${formatMoney(tablePlannedExpenses - totals.expenses)} left`
+                        : `−${formatMoney(totals.expenses - tablePlannedExpenses)} over`
                       : '—'}
                   </strong>
                 </td>
                 <td>
-                  {totals.plannedExpenses > 0 ? (
+                  {tablePlannedExpenses > 0 ? (
                     <div className="progress-container">
                       <div
-                        className={`progress-fill ${totals.expenses > totals.plannedExpenses ? 'danger' : 'normal'}`}
+                        className={`progress-fill ${totals.expenses > tablePlannedExpenses ? 'danger' : 'normal'}`}
                         style={{
-                          width: `${Math.min(100, Math.round((totals.expenses / totals.plannedExpenses) * 100))}%`,
+                          width: `${Math.min(100, Math.round((totals.expenses / tablePlannedExpenses) * 100))}%`,
                         }}
                       />
                       <span className="progress-text small">
-                        {Math.round((totals.expenses / totals.plannedExpenses) * 100)}%
+                        {Math.round((totals.expenses / tablePlannedExpenses) * 100)}%
                       </span>
                     </div>
                   ) : (
@@ -399,6 +425,13 @@ function BudgetRow({ row, month, onBudgetChanged }) {
   const [val, setVal] = useState(row.planned ? String(row.planned) : '')
   const [isEditing, setIsEditing] = useState(false)
 
+  // Keep input in sync with row.planned when not actively editing
+  useEffect(() => {
+    if (!isEditing) {
+      setVal(row.planned ? String(row.planned) : '')
+    }
+  }, [row.planned, isEditing])
+
   function save() {
     const num = Number(val.replace(',', '.'))
     if (!Number.isFinite(num) || num < 0) {
@@ -421,9 +454,11 @@ function BudgetRow({ row, month, onBudgetChanged }) {
   return (
     <tr className="budget-row">
       <td className="cat-cell">
-        <span className="swatch" style={{ background: row.color }} />
-        <span className="cat-emoji">{row.emoji}</span>
-        <span className="cat-name">{row.name}</span>
+        <div className="cat-cell-inner">
+          <span className="swatch" style={{ background: row.color }} />
+          <span className="cat-emoji">{row.emoji}</span>
+          <span className="cat-name">{row.name}</span>
+        </div>
       </td>
 
       <td className="planned-cell">

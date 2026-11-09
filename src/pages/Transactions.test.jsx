@@ -235,13 +235,24 @@ describe('editing and deleting', () => {
   })
 })
 
-describe('CSV import modal integration', () => {
+describe('CSV and Screenshot import integration', () => {
   it('opens and closes the CSV modal', () => {
     mount()
     expect(q('.modal-backdrop')).toBeNull()
     act(() => q('[aria-label="Upload CSV"]').click())
     expect(q('.modal-backdrop')).not.toBeNull()
     expect(q('.modal-card').textContent).toContain('Upload CSV Statement')
+
+    act(() => q('[aria-label="Close modal"]').click())
+    expect(q('.modal-backdrop')).toBeNull()
+  })
+
+  it('opens and closes the Screenshot import modal', () => {
+    mount()
+    expect(q('.modal-backdrop')).toBeNull()
+    act(() => q('[aria-label="Upload Screenshots"]').click())
+    expect(q('.modal-backdrop')).not.toBeNull()
+    expect(q('.modal-card').textContent).toContain('Import Bank Screenshots')
 
     act(() => q('[aria-label="Close modal"]').click())
     expect(q('.modal-backdrop')).toBeNull()

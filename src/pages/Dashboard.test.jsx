@@ -92,4 +92,22 @@ describe('Dashboard Page', () => {
     // Table reflects left difference: 1000 planned - 400 actual = +600 left
     expect(container.querySelector('.diff-pill.success').textContent).toContain('600')
   })
+
+  it('precalculates planned budget based on Avg/Mo when no custom budget exists', () => {
+    const gCat = cat('Grocery')
+    // Spend 300 in Jan, 500 in Feb -> average 400/month
+    storage.addTransaction({ type: 'expense', date: '2026-01-10', amount: 300, categoryId: gCat.id })
+    storage.addTransaction({ type: 'expense', date: '2026-02-15', amount: 500, categoryId: gCat.id })
+
+    // Mount Dashboard for March 2026
+    container = document.createElement('div')
+    document.body.appendChild(container)
+    root = createRoot(container)
+    act(() => root.render(<Dashboard month="2026-03" />))
+
+    // Grocery row should have precalculated Planned = 400
+    const editBtn = container.querySelector(`[aria-label="Edit planned budget for ${gCat.name}"]`)
+    expect(editBtn.textContent).toContain('400')
+    expect(container.querySelector('.budget-summary-pills').textContent).toContain('400')
+  })
 })

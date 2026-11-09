@@ -2,11 +2,7 @@ import { useState, useMemo } from 'react'
 import {
   ChevronLeft,
   ChevronRight,
-  TrendingUp,
-  TrendingDown,
-  PiggyBank,
   Download,
-  Calendar,
   CloudSnow,
   Flower2,
   Sun,
@@ -211,16 +207,16 @@ export default function SeasonComparisonView({
 
   return (
     <div className="season-comparison-view">
-      {/* Top Controls Bar */}
-      <div className="yoy-controls-bar">
-        <div className="season-mode-toggle" role="tablist">
+      {/* Top Controls Bar - Unified Single Row with Mode Toggle and Year Selector */}
+      <div className="season-top-bar">
+        <div className="season-mode-toggle" role="tablist" aria-label="Season comparison mode">
           <button
             type="button"
             className={`btn ${subMode === 'all' ? 'primary' : ''}`}
             onClick={() => setSubMode('all')}
           >
             <Layers size={16} />
-            <span>All 4 Seasons ({year})</span>
+            <span>All 4 Seasons</span>
           </button>
           <button
             type="button"
@@ -232,17 +228,9 @@ export default function SeasonComparisonView({
           </button>
         </div>
 
-        <button type="button" className="btn secondary" onClick={exportSeasonCsv}>
-          <Download size={16} />
-          <span>Export Season CSV</span>
-        </button>
-      </div>
-
-      {subMode === 'all' ? (
-        <>
-          {/* Year selector for All Seasons */}
-          <div className="season-year-picker">
-            <span className="picker-label">Select Year:</span>
+        {subMode === 'all' && (
+          <div className="season-year-inline">
+            <span className="picker-label">Year:</span>
             <div className="yoy-year-select">
               <button
                 type="button"
@@ -264,7 +252,11 @@ export default function SeasonComparisonView({
               </button>
             </div>
           </div>
+        )}
+      </div>
 
+      {subMode === 'all' ? (
+        <>
           {/* 4 Season KPI Cards */}
           <div className="season-cards-grid">
             {allSeasonsData.map((d) => {
@@ -334,20 +326,32 @@ export default function SeasonComparisonView({
           <div className="panel matrix-panel">
             <div className="matrix-header">
               <h2>Category Breakdown by Season</h2>
-              <div className="type-toggle" role="tablist">
+              <div className="matrix-header-actions">
+                <div className="type-toggle" role="tablist">
+                  <button
+                    type="button"
+                    className={`btn ${categoryType === 'expense' ? 'primary' : ''}`}
+                    onClick={() => setCategoryType('expense')}
+                  >
+                    Expenses
+                  </button>
+                  <button
+                    type="button"
+                    className={`btn ${categoryType === 'income' ? 'primary' : ''}`}
+                    onClick={() => setCategoryType('income')}
+                  >
+                    Income
+                  </button>
+                </div>
+
                 <button
                   type="button"
-                  className={`btn ${categoryType === 'expense' ? 'primary' : ''}`}
-                  onClick={() => setCategoryType('expense')}
+                  className="btn secondary export-btn"
+                  onClick={exportSeasonCsv}
+                  title={`Export ${year} Seasonal Summary to CSV`}
                 >
-                  Expenses
-                </button>
-                <button
-                  type="button"
-                  className={`btn ${categoryType === 'income' ? 'primary' : ''}`}
-                  onClick={() => setCategoryType('income')}
-                >
-                  Income
+                  <Download size={15} />
+                  <span>Export CSV</span>
                 </button>
               </div>
             </div>
@@ -554,20 +558,32 @@ export default function SeasonComparisonView({
           <div className="panel matrix-panel">
             <div className="matrix-header">
               <h2>Category Comparison: {seasonAStats.season.name} {seasonAYear} vs {seasonBStats.season.name} {seasonBYear}</h2>
-              <div className="type-toggle" role="tablist">
+              <div className="matrix-header-actions">
+                <div className="type-toggle" role="tablist">
+                  <button
+                    type="button"
+                    className={`btn ${categoryType === 'expense' ? 'primary' : ''}`}
+                    onClick={() => setCategoryType('expense')}
+                  >
+                    Expenses
+                  </button>
+                  <button
+                    type="button"
+                    className={`btn ${categoryType === 'income' ? 'primary' : ''}`}
+                    onClick={() => setCategoryType('income')}
+                  >
+                    Income
+                  </button>
+                </div>
+
                 <button
                   type="button"
-                  className={`btn ${categoryType === 'expense' ? 'primary' : ''}`}
-                  onClick={() => setCategoryType('expense')}
+                  className="btn secondary export-btn"
+                  onClick={exportSeasonCsv}
+                  title="Export Season Comparison to CSV"
                 >
-                  Expenses
-                </button>
-                <button
-                  type="button"
-                  className={`btn ${categoryType === 'income' ? 'primary' : ''}`}
-                  onClick={() => setCategoryType('income')}
-                >
-                  Income
+                  <Download size={15} />
+                  <span>Export CSV</span>
                 </button>
               </div>
             </div>

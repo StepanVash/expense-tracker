@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Pencil, Trash2, Search, Upload, RotateCcw } from 'lucide-react'
+import { Pencil, Trash2, Search, Upload, RotateCcw, Camera } from 'lucide-react'
 import {
   getTransactions,
   getCategories,
@@ -10,6 +10,7 @@ import {
 import { formatDate, formatMoney, formatMonth, todayISO } from '../format.js'
 import TransactionForm from '../components/TransactionForm.jsx'
 import CsvImportModal from '../components/CsvImportModal.jsx'
+import ScreenshotImportModal from '../components/ScreenshotImportModal.jsx'
 import { undoImport } from '../csvImport.js'
 
 export default function Transactions({ month }) {
@@ -18,6 +19,7 @@ export default function Transactions({ month }) {
   const [editingId, setEditingId] = useState(null)
   const [notice, setNotice] = useState('')
   const [isCsvModalOpen, setIsCsvModalOpen] = useState(false)
+  const [isScreenshotModalOpen, setIsScreenshotModalOpen] = useState(false)
   const [lastImport, setLastImport] = useState(null)
 
   const [search, setSearch] = useState('')
@@ -105,15 +107,26 @@ export default function Transactions({ month }) {
       <section className="panel">
         <div className="panel-header-actions">
           <h2>Add transaction</h2>
-          <button
-            type="button"
-            className="btn"
-            onClick={() => setIsCsvModalOpen(true)}
-            aria-label="Upload CSV"
-          >
-            <Upload size={16} />
-            <span>Upload CSV</span>
-          </button>
+          <div className="import-action-buttons">
+            <button
+              type="button"
+              className="btn"
+              onClick={() => setIsCsvModalOpen(true)}
+              aria-label="Upload CSV"
+            >
+              <Upload size={16} />
+              <span>Upload CSV</span>
+            </button>
+            <button
+              type="button"
+              className="btn secondary"
+              onClick={() => setIsScreenshotModalOpen(true)}
+              aria-label="Upload Screenshots"
+            >
+              <Camera size={16} />
+              <span>Upload Screenshots</span>
+            </button>
+          </div>
         </div>
 
         <TransactionForm
@@ -241,6 +254,23 @@ export default function Transactions({ month }) {
           </>
         )}
       </section>
+
+      <CsvImportModal
+        isOpen={isCsvModalOpen}
+        onClose={() => setIsCsvModalOpen(false)}
+        categories={categories}
+        transactions={transactions}
+        onImportComplete={handleImportComplete}
+      />
+      <ScreenshotImportModal
+        isOpen={isScreenshotModalOpen}
+        onClose={() => setIsScreenshotModalOpen(false)}
+        categories={categories}
+        onImportComplete={(count) => {
+          refresh()
+          setNotice(`Imported ${count} transaction${count === 1 ? '' : 's'} from screenshot(s) ✓`)
+        }}
+      />
     </div>
   )
 }
