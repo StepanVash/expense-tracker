@@ -29,6 +29,18 @@ describe('transactions', () => {
     expect(() => storage.addTransaction({ type: 'gift', date: '2026-01-02', amount: 5 })).toThrow()
   })
 
+  it('rejects dates earlier than January 2026', () => {
+    expect(() => storage.addTransaction({ type: 'expense', date: '2025-12-31', amount: 5 })).toThrow(/January 2026/)
+    expect(() => storage.addTransaction({ type: 'expense', date: '2026-01-01', amount: 5 })).not.toThrow()
+    const tx = storage.getTransactions()[0]
+    expect(() => storage.updateTransaction(tx.id, { date: '2025-06-15' })).toThrow(/January 2026/)
+  })
+
+  it('rejects budgets for months earlier than January 2026', () => {
+    expect(() => storage.setBudget('c1', '2025-12', 100)).toThrow(/January 2026/)
+    expect(() => storage.setBudget('c1', '2026-01', 100)).not.toThrow()
+  })
+
   it('filters by month', () => {
     storage.addTransaction({ type: 'expense', date: '2026-01-31', amount: 1 })
     storage.addTransaction({ type: 'expense', date: '2026-02-01', amount: 2 })
@@ -107,6 +119,11 @@ describe('backup / restore', () => {
     storage.clearAll()
     storage.importData(backup)
     expect(storage.getTransactions()).toHaveLength(1)
+  })
+
+  it('rejects backups containing dates earlier than January 2026', () => {
+    const old = { transactions: [{ id: '1', type: 'expense', date: '2025-12-31', amount: 5 }], categories: [] }
+    expect(() => storage.importData(old)).toThrow(/January 2026/)
   })
 
   it('rejects files that are not backups', () => {

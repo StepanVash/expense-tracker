@@ -11,7 +11,7 @@ import {
   TrendingDown,
   PiggyBank,
 } from 'lucide-react'
-import { getTransactionsForMonth } from './storage.js'
+import { getTransactionsForMonth, MIN_MONTH } from './storage.js'
 import { formatMoney, formatMonth, currentMonth, shiftMonth } from './format.js'
 import Settings from './pages/Settings.jsx'
 
@@ -29,7 +29,11 @@ const COMING_SOON = {
 
 export default function App() {
   const [tab, setTab] = useState('dashboard')
-  const [month, setMonth] = useState(currentMonth())
+  const [month, setMonth] = useState(() => {
+    const now = currentMonth()
+    return now < MIN_MONTH ? MIN_MONTH : now
+  })
+  const atStart = month <= MIN_MONTH
 
   return (
     <div className="app">
@@ -40,7 +44,13 @@ export default function App() {
         </div>
 
         <div className="month-picker" aria-label="Selected month">
-          <button className="icon-btn" onClick={() => setMonth(shiftMonth(month, -1))} aria-label="Previous month">
+          <button
+            className="icon-btn"
+            onClick={() => setMonth(shiftMonth(month, -1))}
+            disabled={atStart}
+            aria-label="Previous month"
+            title={atStart ? 'The tracker starts in January 2026' : undefined}
+          >
             <ChevronLeft size={18} />
           </button>
           <span className="month-label">{formatMonth(month)}</span>

@@ -20,6 +20,10 @@ const TYPES = ['income', 'expense']
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/
 const MONTH_RE = /^\d{4}-\d{2}$/
 
+/** The tracker starts in January 2026 – nothing earlier can be recorded. */
+export const MIN_MONTH = '2026-01'
+export const MIN_DATE = `${MIN_MONTH}-01`
+
 function emptyData() {
   return { version: DATA_VERSION, transactions: [], categories: [], budgets: [] }
 }
@@ -63,6 +67,7 @@ function round2(n) {
 function validateTransaction(t) {
   if (!TYPES.includes(t.type)) throw new Error('Type must be "income" or "expense".')
   if (typeof t.date !== 'string' || !DATE_RE.test(t.date)) throw new Error('Date must look like YYYY-MM-DD.')
+  if (t.date < MIN_DATE) throw new Error('Date cannot be earlier than January 2026.')
   const amount = Number(t.amount)
   if (!Number.isFinite(amount) || amount <= 0) throw new Error('Amount must be a number greater than 0.')
   return {
@@ -193,6 +198,7 @@ export function getBudgets(month) {
 /** Set the planned amount for a category in a month. planned = 0 removes it. */
 export function setBudget(categoryId, month, planned) {
   if (!MONTH_RE.test(month)) throw new Error('Month must look like YYYY-MM.')
+  if (month < MIN_MONTH) throw new Error('Month cannot be earlier than January 2026.')
   const value = Number(planned)
   if (!Number.isFinite(value) || value < 0) throw new Error('Planned amount must be 0 or more.')
   update((d) => {
@@ -211,6 +217,9 @@ export function importData(json) {
   const data = typeof json === 'string' ? JSON.parse(json) : json
   if (!data || !Array.isArray(data.transactions) || !Array.isArray(data.categories)) {
     throw new Error('This file does not look like an Expense Tracker backup.')
+  }
+  if (data.transactions.some((t) => typeof t.date !== 'string' || t.date < MIN_DATE)) {
+    throw new Error('This backup contains transactions earlier than January 2026, which the tracker does not allow.')
   }
   save({ ...emptyData(), ...data, version: DATA_VERSION })
 }

@@ -84,6 +84,15 @@ button {
   background: var(--bg);
 }
 
+.icon-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.icon-btn:disabled:hover {
+  background: transparent;
+}
+
 /* ---------- tabs ---------- */
 .tabs {
   display: flex;

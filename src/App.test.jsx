@@ -42,6 +42,17 @@ describe('App', () => {
     expect(container.querySelector('.month-label').textContent).toBe(formatMonth(shiftMonth(currentMonth(), 1)))
   })
 
+  it('does not let you go before January 2026', () => {
+    render()
+    const prev = container.querySelector('[aria-label="Previous month"]')
+    // click back far more times than needed to reach January 2026
+    for (let i = 0; i < 40 && !prev.disabled; i++) click(prev)
+    expect(container.querySelector('.month-label').textContent).toBe('January 2026')
+    expect(prev.disabled).toBe(true)
+    click(prev)
+    expect(container.querySelector('.month-label').textContent).toBe('January 2026')
+  })
+
   it('summarises income, expenses and savings for the selected month only', () => {
     const m = currentMonth()
     storage.addTransaction({ type: 'income', date: `${m}-05`, amount: 1000 })
