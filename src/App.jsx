@@ -29,10 +29,9 @@ const COMING_SOON = {
 
 export default function App() {
   const [tab, setTab] = useState('dashboard')
-  const [month, setMonth] = useState(() => {
-    const now = currentMonth()
-    return now < MIN_MONTH ? MIN_MONTH : now
-  })
+  const [selectedMonth, setMonth] = useState(currentMonth)
+  // Never show a month before the tracker's start, whatever the saved state is
+  const month = selectedMonth < MIN_MONTH ? MIN_MONTH : selectedMonth
   const atStart = month <= MIN_MONTH
 
   return (

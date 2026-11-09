@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { act } from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './App.jsx'
@@ -40,6 +40,18 @@ describe('App', () => {
     click(container.querySelector('[aria-label="Next month"]'))
     click(container.querySelector('[aria-label="Next month"]'))
     expect(container.querySelector('.month-label').textContent).toBe(formatMonth(shiftMonth(currentMonth(), 1)))
+  })
+
+  it('shows January 2026 (not an earlier month) if the computer clock is before 2026', () => {
+    vi.useFakeTimers({ toFake: ['Date'] })
+    vi.setSystemTime(new Date(2023, 8, 15)) // September 2023
+    try {
+      render()
+      expect(container.querySelector('.month-label').textContent).toBe('January 2026')
+      expect(container.querySelector('[aria-label="Previous month"]').disabled).toBe(true)
+    } finally {
+      vi.useRealTimers()
+    }
   })
 
   it('does not let you go before January 2026', () => {
