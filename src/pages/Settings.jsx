@@ -8,6 +8,7 @@ import {
   deleteCategory,
 } from '../storage.js'
 import { COLOR_PALETTE } from '../defaultCategories.js'
+import EmojiPicker from '../components/EmojiPicker.jsx'
 
 export default function Settings() {
   const [categories, setCategories] = useState(getCategories)
@@ -134,14 +135,7 @@ function CategoryForm({ initial, submitLabel, onSubmit, onCancel, resetAfterSubm
 
   return (
     <form className="category-form" onSubmit={handleSubmit}>
-      <input
-        className="emoji-input"
-        value={emoji}
-        onChange={(e) => setEmoji(e.target.value)}
-        placeholder="🙂"
-        aria-label="Emoji"
-        maxLength={8}
-      />
+      <EmojiPicker value={emoji} onChange={setEmoji} />
       <input
         className="name-input"
         value={name}

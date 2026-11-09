@@ -276,8 +276,79 @@ button {
 }
 
 .category-form .emoji-input {
-  width: 56px;
+  width: 48px;
+  height: 38px;
+  font-size: 1.2rem;
   text-align: center;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+}
+
+.emoji-picker {
+  position: relative;
+}
+
+.emoji-popup {
+  position: absolute;
+  top: 44px;
+  left: 0;
+  z-index: 20;
+  width: 320px;
+  max-width: 85vw;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.18);
+  padding: 10px;
+}
+
+.emoji-custom {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.emoji-custom input {
+  flex: 1;
+  min-width: 0;
+}
+
+.emoji-scroll {
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.emoji-group-name {
+  margin: 8px 0 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.emoji-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 2px;
+}
+
+.emoji-cell {
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  font-size: 1.3rem;
+  padding: 4px 0;
+}
+
+.emoji-cell:hover {
+  background: var(--bg);
+}
+
+.emoji-cell.selected {
+  background: #dff0ea;
+  outline: 2px solid var(--primary);
 }
 
 .category-form .name-input {

@@ -39,12 +39,34 @@ describe('Settings page', () => {
 
   it('adds a new expense category', () => {
     const form = container.querySelectorAll('.add-category form')[0] // expense section
-    act(() => type(form.querySelector('.emoji-input'), '🎁'))
+    act(() => form.querySelector('.emoji-input').click()) // open picker
+    act(() => container.querySelector('[aria-label="Emoji 🎁"]').click()) // pick emoji
     act(() => type(form.querySelector('.name-input'), 'Gifts'))
     act(() => form.querySelector('button[type=submit]').click())
 
     expect(container.textContent).toContain('Gifts')
-    expect(storage.getCategories().find((c) => c.name === 'Gifts').type).toBe('expense')
+    const gifts = storage.getCategories().find((c) => c.name === 'Gifts')
+    expect(gifts.type).toBe('expense')
+    expect(gifts.emoji).toBe('🎁')
+  })
+
+  it('opens the emoji picker, selects an emoji and closes it', () => {
+    const form = container.querySelectorAll('.add-category form')[0]
+    expect(container.querySelector('.emoji-popup')).toBeNull()
+    act(() => form.querySelector('.emoji-input').click())
+    expect(container.querySelector('.emoji-popup')).not.toBeNull()
+    act(() => container.querySelector('[aria-label="Emoji 🚀"]').click())
+    expect(container.querySelector('.emoji-popup')).toBeNull()
+    expect(form.querySelector('.emoji-input').textContent).toBe('🚀')
+  })
+
+  it('closes the emoji picker on Escape', () => {
+    const form = container.querySelectorAll('.add-category form')[0]
+    act(() => form.querySelector('.emoji-input').click())
+    act(() => {
+      document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }))
+    })
+    expect(container.querySelector('.emoji-popup')).toBeNull()
   })
 
   it('shows an error for a duplicate name', () => {
