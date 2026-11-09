@@ -2718,3 +2718,65 @@ button {
 [data-theme="dark"] .season-stat-value.savings {
   color: #60a5fa !important;
 }
+
+
+/* ---------- Dashboard Planned Values & Budget Table Dark Mode ---------- */
+[data-theme="dark"] .editable-budget-btn {
+  background: #1e2634 !important;
+  border: 1px dashed #3e4c63 !important;
+  color: #f0f6fc !important;
+  font-weight: 600;
+}
+
+[data-theme="dark"] .editable-budget-btn span {
+  color: #f0f6fc !important;
+}
+
+[data-theme="dark"] .editable-budget-btn .pencil-icon {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .editable-budget-btn:hover {
+  background: #273447 !important;
+  border-color: #4ade80 !important;
+  color: #4ade80 !important;
+}
+
+[data-theme="dark"] .editable-budget-btn:hover span,
+[data-theme="dark"] .editable-budget-btn:hover .pencil-icon {
+  color: #4ade80 !important;
+}
+
+[data-theme="dark"] .inline-input {
+  background: #1e2634 !important;
+  color: #f0f6fc !important;
+  border-color: #4ade80 !important;
+}
+
+[data-theme="dark"] .planned-cell {
+  color: #f0f6fc !important;
+}
+
+[data-theme="dark"] .diff-pill.success {
+  background: rgba(74, 222, 128, 0.16) !important;
+  color: #4ade80 !important;
+  border: 1px solid rgba(74, 222, 128, 0.3) !important;
+}
+
+[data-theme="dark"] .diff-pill.danger {
+  background: rgba(255, 158, 122, 0.16) !important;
+  color: #ff9e7a !important;
+  border: 1px solid rgba(255, 158, 122, 0.3) !important;
+}
+
+[data-theme="dark"] .progress-container {
+  background: #222b3a !important;
+}
+
+[data-theme="dark"] .progress-text {
+  color: #f0f6fc !important;
+}
+
+[data-theme="dark"] .budget-totals-row td:nth-child(2) strong {
+  color: #f0f6fc !important;
+}
