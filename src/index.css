@@ -2780,3 +2780,135 @@ button {
 [data-theme="dark"] .budget-totals-row td:nth-child(2) strong {
   color: #f0f6fc !important;
 }
+
+
+/* ---------- Ukrainian Statement & Exchange Rate Styles ---------- */
+.exchange-rate-banner {
+  background: #f0f7ff;
+  border: 1px solid #bfdbfe;
+  border-radius: var(--radius);
+  padding: 14px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+[data-theme="dark"] .exchange-rate-banner {
+  background: #152238;
+  border-color: #25406b;
+}
+
+.exchange-banner-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.country-badge {
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  background: #dbeafe;
+  color: #1e40af;
+  border-radius: 999px;
+  border: 1px solid #93c5fd;
+  white-space: nowrap;
+}
+
+[data-theme="dark"] .country-badge {
+  background: #1e3a63;
+  color: #93c5fd;
+  border-color: #2b5288;
+}
+
+.banner-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.banner-text strong {
+  font-size: 0.95rem;
+  color: var(--text);
+}
+
+.rate-setting-bar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.rate-input-box {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.rate-number-input {
+  width: 72px;
+  font: inherit;
+  font-weight: 700;
+  padding: 4px 6px;
+  border: 1px solid var(--primary);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+  text-align: center;
+}
+
+.rate-unit-label {
+  font-size: 0.88rem;
+  color: var(--text);
+}
+
+.rate-presets {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.preset-btn {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.preset-btn:hover {
+  border-color: var(--primary);
+  background: rgba(51, 122, 107, 0.08);
+}
+
+.preset-btn.active {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+}
+
+.rate-conversion-hint {
+  font-style: italic;
+}
+
+.amount-col-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.amount-col-wrap .orig-amount {
+  font-size: 0.76rem;
+  color: var(--muted);
+}

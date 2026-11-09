@@ -49,14 +49,14 @@ export function suggestCategoryId(title, transactions, type, categories) {
   return similar.length ? mostCommonCategory(similar) : null
 }
 
-/** Lower-case, no accents, only letters/digits separated by single spaces. */
+/** Lower-case, no accents, only letters/digits separated by single spaces (supports Latin, Polish & Cyrillic). */
 export function searchable(s) {
   return String(s ?? '')
     .toLowerCase()
     .normalize('NFKD')
     .replace(/[\u0300-\u036f]/g, '')
     .replace(/ł/g, 'l')
-    .replace(/[^a-z0-9]+/g, ' ')
+    .replace(/[^\p{L}\p{N}]+/gu, ' ')
     .trim()
 }
 

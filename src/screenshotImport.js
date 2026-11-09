@@ -4,12 +4,28 @@ import { getLearnedRules, getCategories, getTransactions, MIN_DATE } from './sto
 import { extractCoreMerchantPattern } from './learnedRules.js'
 
 export const DATE_REGEX = /\b(\d{1,2})[.\/-](\d{1,2})[.\/-](\d{4})\b/
-export const AMOUNT_REGEX = /([-−+]?\s*(?:\d{1,3}(?:[\s\u00a0]\d{3})+|\d+)(?:[,\.]\d{2}))\s*(?:PLN|zł)?\b/i
+
+export const UKR_MONTHS = {
+  'січня': '01', 'лютого': '02', 'березня': '03', 'квітня': '04',
+  'травня': '05', 'червня': '06', 'липня': '07', 'серпня': '08',
+  'вересня': '09', 'жовтня': '10', 'листопада': '11', 'грудня': '12',
+  'січень': '01', 'лютий': '02', 'березень': '03', 'квітень': '04',
+  'травень': '05', 'червень': '06', 'липень': '07', 'серпень': '08',
+  'вересень': '09', 'жовтень': '10', 'листопад': '11', 'грудень': '12',
+}
+
+export const UKR_DATE_REGEX = new RegExp(
+  `(?:^|[\\s\\W])(\\d{1,2})\\s+(${Object.keys(UKR_MONTHS).join('|')})(?:\\s+(\\d{4}))?(?:$|[\\s\\W])`,
+  'i'
+)
+
+// Matches amounts like: -70.00, 4 800.00, -12,00 PLN, -645.00 ₴
+export const AMOUNT_REGEX = /([-−+]?\s*(?:\d{1,3}(?:[\s\u00a0]\d{3})+|\d+)[,\.]\d{2})(?:\s*(?:PLN|zł|₴|\u20B4|грн|uah|[28z]\b))?/i
 
 // Common UI chrome / navigation words in bank mobile apps to filter out
-export const NOISE_REGEX = /^(historia konta|konto za zero|znajdź odbiorcę|uznania|obciążenia|wszystkie|sprawdź swoje finanse|szukaj|\d{1,2}:\d{2}|[xbus=|\.\[\]\{\}]+)$/i
+export const NOISE_REGEX = /^(historia konta|konto za zero|znajdź odbiorcę|uznania|obciążenia|wszystkie|sprawdź swoje finanse|szukaj|\d{1,2}:\d{2}|[xbus=|\.\[\]\{\}]+|visa|monobank)$/i
 
-// Internal transfer signals
+// Internal transfer signals across Polish and Ukrainian banking apps
 export const TRANSFER_KEYWORDS = [
   'przelew na telefon',
   'przelew własny',
@@ -22,15 +38,50 @@ export const TRANSFER_KEYWORDS = [
   'zen.com',
   'revolut',
   'blik',
+  // Ukrainian bank transfer keywords
+  'від:',
+  'переказ на картку',
+  'переказ',
+  'поповнення',
+  'скарбничка',
+  'банка',
+  'monobank',
 ]
+
+/**
+ * Checks if raw text from an image comes from a Ukrainian bank app.
+ * @param {string} text
+ * @returns {boolean}
+ */
+export function detectUkrainianBank(text) {
+  if (!text || typeof text !== 'string') return false
+  const t = text.toLowerCase()
+  return (
+    t.includes('monobank') ||
+    t.includes('приват') ||
+    t.includes('пумб') ||
+    t.includes('ощад') ||
+    t.includes('райф') ||
+    t.includes('від:') ||
+    t.includes('₴') ||
+    t.includes('грн') ||
+    t.includes('uah') ||
+    /січня|лютого|березня|квітня|травня|червня|липня|серпня|вересня|жовтня|листопада|грудня/.test(t)
+  )
+}
 
 /**
  * Parses raw text extracted from a bank app screenshot into transactions.
  * @param {string} text - Raw OCR text
- * @returns {Array<{ date: string, title: string, amount: number, type: 'income'|'expense', isTransfer: boolean }>}
+ * @param {{ exchangeRate?: number, defaultYear?: number }} [options]
+ * @returns {Array<{ date: string, title: string, amount: number, rawAmount: number, rawCurrency: string, type: 'income'|'expense', isTransfer: boolean }>}
  */
-export function parseScreenshotText(text) {
+export function parseScreenshotText(text, options = {}) {
   if (!text || typeof text !== 'string') return []
+
+  const defaultYear = options.defaultYear || 2026
+  const exchangeRate = options.exchangeRate || 10.0 // default 1 PLN = 10.0 UAH
+  const isUkrainian = detectUkrainianBank(text)
 
   const lines = text
     .split(/\r?\n/)
@@ -42,7 +93,7 @@ export function parseScreenshotText(text) {
   let buffer = []
 
   for (let line of lines) {
-    // Check if line contains a date header (e.g. 24.10.2026)
+    // 1. Check Polish / numeric date header (e.g. 24.10.2026)
     const dateMatch = line.match(DATE_REGEX)
     if (dateMatch) {
       const day = dateMatch[1].padStart(2, '0')
@@ -56,9 +107,27 @@ export function parseScreenshotText(text) {
       continue
     }
 
+    // 2. Check Ukrainian date header (e.g. 29 жовтня)
+    const ukrDateMatch = line.match(UKR_DATE_REGEX)
+    if (ukrDateMatch) {
+      const day = ukrDateMatch[1].padStart(2, '0')
+      const monthStr = UKR_MONTHS[ukrDateMatch[2].toLowerCase()]
+      const yr = ukrDateMatch[3] || defaultYear
+      const isoDate = `${yr}-${monthStr}-${day}`
+      if (isoDate >= MIN_DATE) {
+        currentDate = isoDate
+      }
+      buffer = []
+      continue
+    }
+
     if (!currentDate) continue
 
-    // Filter out common app chrome/header noise
+    // Filter out phone numbers and common app chrome noise
+    if (/^\+?\d{10,14}$/.test(line.replace(/[\s\(\)\-]/g, ''))) {
+      continue
+    }
+
     const cleanLine = line.replace(/^[=\|\.\s\-\+]+/, '').trim()
     if (!cleanLine || NOISE_REGEX.test(cleanLine.toLowerCase())) {
       continue
@@ -70,7 +139,7 @@ export function parseScreenshotText(text) {
       const rawAmountStr = amountMatch[1].replace(/\s+/g, '').replace('−', '-')
       const isNegative = rawAmountStr.startsWith('-')
       const numStr = rawAmountStr.replace(/^[+-]/, '').replace(',', '.')
-      const amount = Math.round(parseFloat(numStr) * 100) / 100
+      const rawAmount = Math.round(parseFloat(numStr) * 100) / 100
 
       // Description is either on this line before the amount, or from the buffer
       const descOnSameLine = line.replace(AMOUNT_REGEX, '').replace(/^[=\|\.\s\-\+]+/, '').trim()
@@ -83,21 +152,32 @@ export function parseScreenshotText(text) {
         title = 'Bank transaction'
       }
 
-      // Clean single-letter avatar prefixes from title (e.g. "b ODBIORCA..." -> "ODBIORCA...")
-      title = title.replace(/^[a-z]\s+/i, '').replace(/[\.]{2,}$/, '').trim()
+      // Clean single-letter avatar prefixes from title (e.g. "b ODBIORCA..." -> "ODBIORCA...", "o ОСББ..." -> "ОСББ...")
+      title = title.replace(/^[a-zєo\W]{1,2}\s+/i, '').replace(/[\.]{2,}$/, '').trim()
 
-      const type = isNegative ? 'expense' : 'income'
+      // Determine income vs expense (in Ukrainian apps, "Від:" or unsigned amounts are income)
+      const isIncome = !isNegative && (line.includes('Від:') || !line.includes('-'))
+      const type = isIncome ? 'income' : 'expense'
+
       const titleLower = title.toLowerCase()
       const descLower = descOnSameLine.toLowerCase()
       const isTransfer = TRANSFER_KEYWORDS.some(
         (kw) => titleLower.includes(kw) || descLower.includes(kw),
       )
 
-      if (Number.isFinite(amount) && amount > 0) {
+      // Calculate amount in PLN
+      const rawCurrency = isUkrainian ? 'UAH' : 'PLN'
+      const amountInPln = isUkrainian
+        ? Math.round((rawAmount / exchangeRate) * 100) / 100
+        : rawAmount
+
+      if (Number.isFinite(rawAmount) && rawAmount > 0) {
         results.push({
           date: currentDate,
           title,
-          amount,
+          amount: amountInPln,
+          rawAmount,
+          rawCurrency,
           type,
           isTransfer,
         })
@@ -105,7 +185,7 @@ export function parseScreenshotText(text) {
       buffer = []
     } else {
       // Line is title/description text
-      const item = cleanLine.replace(/^[a-z]\s+/i, '').trim()
+      const item = cleanLine.replace(/^[a-zєo\W]{1,2}\s+/i, '').trim()
       if (item.length > 1 && !NOISE_REGEX.test(item.toLowerCase())) {
         buffer.push(item)
       }
@@ -127,7 +207,9 @@ export function deduplicateTransactions(transactions) {
   let duplicatesRemoved = 0
 
   for (const tx of transactions) {
-    const key = `${tx.date}|${tx.amount.toFixed(2)}|${tx.type}|${tx.title.toLowerCase().trim()}`
+    const rawVal = tx.rawAmount !== undefined ? tx.rawAmount : tx.amount
+    const curr = tx.rawCurrency || 'PLN'
+    const key = `${tx.date}|${rawVal.toFixed(2)}|${curr}|${tx.type}|${tx.title.toLowerCase().trim()}`
     if (seen.has(key)) {
       duplicatesRemoved++
     } else {
@@ -143,23 +225,25 @@ export function deduplicateTransactions(transactions) {
  * Runs client-side OCR on multiple image files using Tesseract.js.
  * @param {File[]} imageFiles - Array of image files from input/drop
  * @param {(progress: { current: number, total: number, progress: number, status: string }) => void} onProgress
- * @returns {Promise<{ transactions: Array, totalImages: number, duplicatesRemoved: number }>}
+ * @param {{ exchangeRate?: number, defaultYear?: number }} [options]
+ * @returns {Promise<{ transactions: Array, totalImages: number, duplicatesRemoved: number, isUkrainian: boolean, detectedCurrency: string }>}
  */
-export async function processScreenshotFiles(imageFiles, onProgress) {
+export async function processScreenshotFiles(imageFiles, onProgress, options = {}) {
   if (!imageFiles || imageFiles.length === 0) {
-    return { transactions: [], totalImages: 0, duplicatesRemoved: 0 }
+    return { transactions: [], totalImages: 0, duplicatesRemoved: 0, isUkrainian: false, detectedCurrency: 'PLN' }
   }
 
   let worker = null
   const allParsed = []
+  let isAnyUkrainian = false
 
   try {
     const total = imageFiles.length
     if (onProgress) {
-      onProgress({ current: 0, total, progress: 0, status: 'Initializing OCR engine...' })
+      onProgress({ current: 0, total, progress: 0, status: 'Initializing OCR engine (Polish, English, Ukrainian)...' })
     }
 
-    worker = await createWorker('pol+eng')
+    worker = await createWorker('pol+eng+ukr')
 
     for (let i = 0; i < total; i++) {
       const file = imageFiles[i]
@@ -173,7 +257,12 @@ export async function processScreenshotFiles(imageFiles, onProgress) {
       }
 
       const ret = await worker.recognize(file)
-      const parsed = parseScreenshotText(ret.data?.text || '')
+      const rawText = ret.data?.text || ''
+      if (detectUkrainianBank(rawText)) {
+        isAnyUkrainian = true
+      }
+
+      const parsed = parseScreenshotText(rawText, options)
       allParsed.push(...parsed)
 
       if (onProgress) {
@@ -216,6 +305,18 @@ export async function processScreenshotFiles(imageFiles, onProgress) {
         null
     }
 
+    // Built-in intelligent defaults for common Ukrainian bank items if no category yet
+    if (!categoryId && tx.type === 'expense') {
+      const t = tx.title.toLowerCase()
+      if (t.includes('київстар') || t.includes('vodafone') || t.includes('lifecell')) {
+        const billsCat = categories.find((c) => /phone|bill|rachunki|telefon/i.test(c.name))
+        if (billsCat) categoryId = billsCat.id
+      } else if (t.includes('вода') || t.includes('опалення') || t.includes('газ') || t.includes('осбб')) {
+        const homeCat = categories.find((c) => /home|mieszkanie|rachunki|utilities/i.test(c.name))
+        if (homeCat) categoryId = homeCat.id
+      }
+    }
+
     return {
       id: `screenshot-row-${idx}-${Date.now()}`,
       ...tx,
@@ -228,5 +329,8 @@ export async function processScreenshotFiles(imageFiles, onProgress) {
     transactions: enriched,
     totalImages: imageFiles.length,
     duplicatesRemoved,
+    isUkrainian: isAnyUkrainian,
+    detectedCurrency: isAnyUkrainian ? 'UAH' : 'PLN',
+    defaultExchangeRate: options.exchangeRate || 10.0,
   }
 }

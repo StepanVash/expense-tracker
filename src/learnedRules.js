@@ -6,6 +6,8 @@ const NOISE_WORDS = new Set([
   'pol', 'pl', 'krakow', 'warszawa', 'wroclaw', 'poznan', 'gdansk', 'lodz',
   'sklep', 'nr', 'market', 'salon', 'punkt', 'oddzial', 'card', 'karta', 'payment', 'platnosc',
   'zakup', 'pos', 'terminal', 'transakcja', 'transfer', 'przelew', 'topup', 'top', 'up',
+  // Ukrainian corporate forms and payment noise
+  'тов', 'фоп', 'пат', 'прат', 'пп', 'від', 'до', 'платіж', 'оплата', 'переказ', 'карта', 'термінал',
 ])
 
 /**

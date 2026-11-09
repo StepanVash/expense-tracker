@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest'
 import {
   parseScreenshotText,
   deduplicateTransactions,
+  detectUkrainianBank,
 } from './screenshotImport.js'
 import * as storage from './storage.js'
 import { DEFAULT_CATEGORIES } from './defaultCategories.js'
@@ -77,7 +78,7 @@ NR SZKODY 1234567.0. 1302,94 PLN
 
   it('filters out app chrome, status bars, and UI noise', () => {
     const text = `
-02:52
+02:50
 Historia konta
 Wszystkie Uznania Obciążenia
 Znajdź odbiorcę, nadawcę, tytu...
@@ -106,18 +107,74 @@ NOWY SKLEP
 
   it('deduplicates overlapping transactions across multiple screenshots', () => {
     const listA = [
-      { date: '2026-10-24', title: 'Coffee Shop', amount: 18.5, type: 'expense' },
-      { date: '2026-10-20', title: 'Biedronka', amount: 120.4, type: 'expense' },
+      { date: '2026-10-24', title: 'Coffee Shop', amount: 18.5, rawAmount: 18.5, type: 'expense' },
+      { date: '2026-10-20', title: 'Biedronka', amount: 120.4, rawAmount: 120.4, type: 'expense' },
     ]
 
     const listB = [
-      { date: '2026-10-20', title: 'Biedronka', amount: 120.4, type: 'expense' }, // duplicate
-      { date: '2026-10-15', title: 'Gas Station', amount: 250, type: 'expense' },
+      { date: '2026-10-20', title: 'Biedronka', amount: 120.4, rawAmount: 120.4, type: 'expense' }, // duplicate
+      { date: '2026-10-15', title: 'Gas Station', amount: 250, rawAmount: 250, type: 'expense' },
     ]
 
     const { deduplicated, duplicatesRemoved } = deduplicateTransactions([...listA, ...listB])
     expect(deduplicated).toHaveLength(3)
     expect(duplicatesRemoved).toBe(1)
     expect(deduplicated.map((t) => t.title)).toEqual(['Coffee Shop', 'Biedronka', 'Gas Station'])
+  })
+
+  it('detects Ukrainian bank apps and parses UAH statement with currency conversion', () => {
+    const ukrText = `
+monobank
+5 886.10 ₴
+29 жовтня
+Від: Riabokobyla Oleksii 4 800.00 ₴
+
+28 жовтня
+Київстар -70.00 ₴
+Київстар -190.00 ₴
+
+18 жовтня
+ОСББ "Авангард-44" -645.00 ₴
+Гаряча вода -79.37 ₴
+Опалення -98.24 ₴
+`
+    // Detect Ukrainian bank
+    expect(detectUkrainianBank(ukrText)).toBe(true)
+
+    // Parse with exchange rate 1 PLN = 10.0 UAH
+    const parsed10 = parseScreenshotText(ukrText, { exchangeRate: 10.0, defaultYear: 2026 })
+    expect(parsed10).toHaveLength(6)
+
+    // 1. Income transfer
+    expect(parsed10[0].date).toBe('2026-10-29')
+    expect(parsed10[0].title).toContain('Riabokobyla Oleksii')
+    expect(parsed10[0].rawAmount).toBe(4800)
+    expect(parsed10[0].rawCurrency).toBe('UAH')
+    expect(parsed10[0].amount).toBe(480) // 4800 / 10
+    expect(parsed10[0].type).toBe('income')
+    expect(parsed10[0].isTransfer).toBe(true)
+
+    // 2. Kyivstar 70 UAH -> 7 PLN
+    expect(parsed10[1].date).toBe('2026-10-28')
+    expect(parsed10[1].title).toBe('Київстар')
+    expect(parsed10[1].rawAmount).toBe(70)
+    expect(parsed10[1].amount).toBe(7)
+    expect(parsed10[1].type).toBe('expense')
+
+    // 3. Kyivstar 190 UAH -> 19 PLN
+    expect(parsed10[2].date).toBe('2026-10-28')
+    expect(parsed10[2].title).toBe('Київстар')
+    expect(parsed10[2].rawAmount).toBe(190)
+    expect(parsed10[2].amount).toBe(19)
+
+    // 4. OSBB 645 UAH -> 64.50 PLN
+    expect(parsed10[3].date).toBe('2026-10-18')
+    expect(parsed10[3].title).toContain('ОСББ')
+    expect(parsed10[3].rawAmount).toBe(645)
+    expect(parsed10[3].amount).toBe(64.5)
+
+    // Test with custom exchange rate 1 PLN = 9.5 UAH
+    const parsed95 = parseScreenshotText(ukrText, { exchangeRate: 9.5, defaultYear: 2026 })
+    expect(parsed95[1].amount).toBe(Math.round((70 / 9.5) * 100) / 100) // 7.37 PLN
   })
 })
