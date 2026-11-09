@@ -29,7 +29,7 @@ describe('App', () => {
   it('starts on the dashboard with the current month and an empty state', () => {
     render()
     expect(container.querySelector('.month-label').textContent).toBe(formatMonth(currentMonth()))
-    expect(container.querySelectorAll('.card')).toHaveLength(3)
+    expect(container.querySelectorAll('.card')).toHaveLength(4)
     expect(container.textContent).toContain('No transactions')
   })
 
@@ -107,6 +107,6 @@ describe('App', () => {
     click(tab('Settings'))
     expect(container.textContent).toContain('Expense categories')
     click(tab('Dashboard'))
-    expect(container.querySelectorAll('.card')).toHaveLength(3)
+    expect(container.querySelectorAll('.card')).toHaveLength(4)
   })
 })

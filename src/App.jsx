@@ -15,6 +15,7 @@ import { getTransactionsForMonth, MIN_MONTH } from './storage.js'
 import { formatMoney, formatMonth, currentMonth, shiftMonth } from './format.js'
 import Settings from './pages/Settings.jsx'
 import Transactions from './pages/Transactions.jsx'
+import Dashboard from './pages/Dashboard.jsx'
 import MonthYearPicker from './components/MonthYearPicker.jsx'
 
 const TABS = [
@@ -56,49 +57,11 @@ export default function App() {
       </nav>
 
       <main className="content">
-        {tab === 'dashboard' && <Dashboard month={month} />}
+        {tab === 'dashboard' && <Dashboard month={month} onNavigateTab={setTab} />}
         {tab === 'transactions' && <Transactions month={month} />}
         {tab === 'settings' && <Settings />}
         {COMING_SOON[tab] && <ComingSoon {...COMING_SOON[tab]} />}
       </main>
-    </div>
-  )
-}
-
-function Dashboard({ month }) {
-  const totals = useMemo(() => {
-    const txs = getTransactionsForMonth(month)
-    const income = txs.filter((t) => t.type === 'income').reduce((s, t) => s + t.amount, 0)
-    const expenses = txs.filter((t) => t.type === 'expense').reduce((s, t) => s + t.amount, 0)
-    return { income, expenses, savings: income - expenses, count: txs.length }
-  }, [month])
-
-  return (
-    <>
-      <section className="cards">
-        <SummaryCard label="Income" value={totals.income} icon={TrendingUp} tone="income" />
-        <SummaryCard label="Expenses" value={totals.expenses} icon={TrendingDown} tone="expense" />
-        <SummaryCard label="Savings" value={totals.savings} icon={PiggyBank} tone="savings" />
-      </section>
-
-      {totals.count === 0 && (
-        <div className="empty">
-          <p>No transactions in {formatMonth(month)} yet.</p>
-          <p className="muted">Add some in the Transactions tab, or import your Excel file later (Step 5).</p>
-        </div>
-      )}
-    </>
-  )
-}
-
-function SummaryCard({ label, value, icon: Icon, tone }) {
-  return (
-    <div className={`card ${tone}`}>
-      <div className="card-head">
-        <Icon size={18} />
-        <span>{label}</span>
-      </div>
-      <div className="card-value">{formatMoney(value)}</div>
     </div>
   )
 }
