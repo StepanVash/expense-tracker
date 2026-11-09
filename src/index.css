@@ -2436,3 +2436,285 @@ button {
   border-color: rgba(51, 122, 107, 0.3);
   font-weight: 600;
 }
+
+
+/* ---------- High Contrast Night Mode Styles & Matrix Tables ---------- */
+[data-theme="dark"] {
+  --text: #f0f6fc;
+  --muted: #94a3b8;
+  --income: #4ade80;
+  --expense: #ff9e7a;
+  --savings: #60a5fa;
+}
+
+.cat-name-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.matrix-total-row {
+  font-weight: 700;
+  background: #f8fafc;
+  border-top: 2px solid var(--border);
+}
+
+.matrix-total-row td {
+  padding: 10px 10px;
+  font-weight: 700;
+}
+
+.matrix-total-row .sticky-col {
+  background: #f8fafc;
+}
+
+.matrix-total-row .total-cell {
+  background: #f1f5f9;
+  font-weight: 800;
+}
+
+.matrix-total-row.expense td {
+  color: var(--expense);
+}
+
+.matrix-total-row.income td {
+  color: var(--income);
+}
+
+/* Dark mode table backgrounds, borders, and text */
+[data-theme="dark"] .year-matrix-table,
+[data-theme="dark"] .category-matrix-table,
+[data-theme="dark"] .seasonal-matrix-table,
+[data-theme="dark"] .yoy-table,
+[data-theme="dark"] .budget-table,
+[data-theme="dark"] .preview-table {
+  border-color: var(--border);
+}
+
+[data-theme="dark"] .year-matrix-table th,
+[data-theme="dark"] .category-matrix-table th,
+[data-theme="dark"] .seasonal-matrix-table th,
+[data-theme="dark"] .budget-table th,
+[data-theme="dark"] .yoy-table th,
+[data-theme="dark"] .preview-table th {
+  background: #141b25 !important;
+  color: #cbd5e1 !important;
+  border-color: var(--border) !important;
+}
+
+[data-theme="dark"] .year-matrix-table td,
+[data-theme="dark"] .category-matrix-table td,
+[data-theme="dark"] .seasonal-matrix-table td,
+[data-theme="dark"] .budget-table td,
+[data-theme="dark"] .yoy-table td,
+[data-theme="dark"] .preview-table td {
+  background: var(--surface);
+  color: var(--text);
+  border-color: var(--border) !important;
+}
+
+/* High contrast sticky column in dark mode */
+[data-theme="dark"] .sticky-col {
+  background: var(--surface) !important;
+  color: #f0f6fc !important;
+  border-right: 1px solid var(--border) !important;
+}
+
+[data-theme="dark"] th.sticky-col {
+  background: #141b25 !important;
+  color: #cbd5e1 !important;
+}
+
+/* Category names high contrast across all dark mode tables */
+[data-theme="dark"] .cat-name,
+[data-theme="dark"] .cat-name-cell .name,
+[data-theme="dark"] .cat-cell .cat-name,
+[data-theme="dark"] .cat-cell-inner .cat-name,
+[data-theme="dark"] .matrix-category-row .cat-name,
+[data-theme="dark"] .cat-cell strong,
+[data-theme="dark"] .name-cell strong {
+  color: #f0f6fc !important;
+  font-weight: 600 !important;
+}
+
+/* 12-Month Matrix Total & Avg columns */
+[data-theme="dark"] .total-col-header {
+  background: #192230 !important;
+  color: #f0f6fc !important;
+  border-left: 2px solid var(--border) !important;
+}
+
+[data-theme="dark"] .total-cell {
+  background: #1c2636 !important;
+  color: #f0f6fc !important;
+  border-left: 2px solid var(--border) !important;
+}
+
+[data-theme="dark"] .total-cell strong {
+  color: #f0f6fc !important;
+}
+
+[data-theme="dark"] .avg-col-header {
+  background: #141b25 !important;
+  color: var(--muted) !important;
+}
+
+[data-theme="dark"] .avg-cell {
+  background: #18202c !important;
+  color: #cbd5e1 !important;
+}
+
+/* 12-Month Matrix Summary Rows */
+[data-theme="dark"] .matrix-summary-row.income,
+[data-theme="dark"] .matrix-summary-row.income td,
+[data-theme="dark"] .matrix-summary-row.income .sticky-col {
+  background: #152724 !important;
+  color: #4ade80 !important;
+  border-color: #1e3a35 !important;
+}
+
+[data-theme="dark"] .matrix-summary-row.income strong,
+[data-theme="dark"] .matrix-summary-row.income .total-cell strong {
+  color: #4ade80 !important;
+}
+
+[data-theme="dark"] .matrix-summary-row.expense,
+[data-theme="dark"] .matrix-summary-row.expense td,
+[data-theme="dark"] .matrix-summary-row.expense .sticky-col {
+  background: #2a1f26 !important;
+  color: #ff9e7a !important;
+  border-color: #3f2c37 !important;
+}
+
+[data-theme="dark"] .matrix-summary-row.expense strong,
+[data-theme="dark"] .matrix-summary-row.expense .total-cell strong {
+  color: #ff9e7a !important;
+}
+
+[data-theme="dark"] .matrix-summary-row.savings,
+[data-theme="dark"] .matrix-summary-row.savings td,
+[data-theme="dark"] .matrix-summary-row.savings .sticky-col {
+  background: #162438 !important;
+  color: #60a5fa !important;
+  border-color: #23354f !important;
+}
+
+[data-theme="dark"] .matrix-summary-row.savings strong,
+[data-theme="dark"] .matrix-summary-row.savings .total-cell strong {
+  color: #60a5fa !important;
+}
+
+[data-theme="dark"] .matrix-divider-row,
+[data-theme="dark"] .matrix-divider-row td {
+  background: #121822 !important;
+  border-color: var(--border) !important;
+}
+
+[data-theme="dark"] .divider-label {
+  color: #94a3b8 !important;
+  font-weight: 700 !important;
+}
+
+/* Compare Seasons Total Row */
+[data-theme="dark"] .matrix-total-row {
+  border-top-color: var(--border) !important;
+}
+
+[data-theme="dark"] .matrix-total-row,
+[data-theme="dark"] .matrix-total-row td,
+[data-theme="dark"] .matrix-total-row .sticky-col {
+  background: #1a2332 !important;
+  color: #f0f6fc !important;
+  border-color: var(--border) !important;
+}
+
+[data-theme="dark"] .matrix-total-row .total-cell {
+  background: #202c3e !important;
+  color: #f0f6fc !important;
+}
+
+[data-theme="dark"] .matrix-total-row.expense,
+[data-theme="dark"] .matrix-total-row.expense td,
+[data-theme="dark"] .matrix-total-row.expense .sticky-col {
+  background: #2a1f26 !important;
+  color: #ff9e7a !important;
+}
+
+[data-theme="dark"] .matrix-total-row.expense .num-col,
+[data-theme="dark"] .matrix-total-row.expense .total-cell,
+[data-theme="dark"] .matrix-total-row.expense strong {
+  color: #ff9e7a !important;
+}
+
+[data-theme="dark"] .matrix-total-row.income,
+[data-theme="dark"] .matrix-total-row.income td,
+[data-theme="dark"] .matrix-total-row.income .sticky-col {
+  background: #152724 !important;
+  color: #4ade80 !important;
+}
+
+[data-theme="dark"] .matrix-total-row.income .num-col,
+[data-theme="dark"] .matrix-total-row.income .total-cell,
+[data-theme="dark"] .matrix-total-row.income strong {
+  color: #4ade80 !important;
+}
+
+/* Budget and YoY comparison totals row */
+[data-theme="dark"] .budget-totals-row,
+[data-theme="dark"] .budget-totals-row td {
+  background: #1a2332 !important;
+  color: #f0f6fc !important;
+  border-color: var(--border) !important;
+}
+
+[data-theme="dark"] .budget-totals-row strong {
+  color: #f0f6fc !important;
+}
+
+[data-theme="dark"] .budget-totals-row .expense,
+[data-theme="dark"] .budget-totals-row .expense strong {
+  color: #ff9e7a !important;
+}
+
+[data-theme="dark"] .budget-totals-row .income,
+[data-theme="dark"] .budget-totals-row .income strong {
+  color: #4ade80 !important;
+}
+
+/* Hover highlights in dark mode */
+[data-theme="dark"] .matrix-category-row:hover td,
+[data-theme="dark"] .matrix-category-row:hover .sticky-col,
+[data-theme="dark"] .seasonal-matrix-table tr:hover td,
+[data-theme="dark"] .seasonal-matrix-table tr:hover .sticky-col,
+[data-theme="dark"] .budget-row:hover td,
+[data-theme="dark"] .budget-row:hover .sticky-col,
+[data-theme="dark"] .yoy-table tr:hover td,
+[data-theme="dark"] .yoy-table tr:hover .sticky-col,
+[data-theme="dark"] .compare-table tr:hover td {
+  background: #202b3c !important;
+}
+
+/* Global high-contrast values in dark mode */
+[data-theme="dark"] .expense,
+[data-theme="dark"] .amount-cell.expense,
+[data-theme="dark"] .card-value.expense,
+[data-theme="dark"] .side-val.expense,
+[data-theme="dark"] .season-stat-value.expense {
+  color: #ff9e7a !important;
+}
+
+[data-theme="dark"] .income,
+[data-theme="dark"] .amount-cell.income,
+[data-theme="dark"] .card-value.income,
+[data-theme="dark"] .side-val.income,
+[data-theme="dark"] .season-stat-value.income {
+  color: #4ade80 !important;
+}
+
+[data-theme="dark"] .savings,
+[data-theme="dark"] .amount-cell.savings,
+[data-theme="dark"] .card-value.savings,
+[data-theme="dark"] .side-val.savings,
+[data-theme="dark"] .season-stat-value.savings {
+  color: #60a5fa !important;
+}

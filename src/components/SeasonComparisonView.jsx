@@ -394,17 +394,21 @@ export default function SeasonComparisonView({
                   })}
                 </tbody>
                 <tfoot>
-                  <tr className="matrix-total-row">
-                    <td className="sticky-col">Total</td>
+                  <tr className={`matrix-total-row ${categoryType}`}>
+                    <td className="sticky-col">
+                      <strong>Total {categoryType === 'expense' ? 'Expenses' : 'Income'}</strong>
+                    </td>
                     {allSeasonsData.map((d) => (
                       <td key={d.season.id} className="num-col">
-                        {formatMoney(categoryType === 'expense' ? d.expenses : d.income)}
+                        <strong>{formatMoney(categoryType === 'expense' ? d.expenses : d.income)}</strong>
                       </td>
                     ))}
                     <td className="num-col total-cell">
-                      {formatMoney(categoryType === 'expense' ? annualTotalExpenses : annualTotalIncome)}
+                      <strong>{formatMoney(categoryType === 'expense' ? annualTotalExpenses : annualTotalIncome)}</strong>
                     </td>
-                    <td className="num-col share-cell">100%</td>
+                    <td className="num-col share-cell">
+                      <strong>100%</strong>
+                    </td>
                   </tr>
                 </tfoot>
               </table>
