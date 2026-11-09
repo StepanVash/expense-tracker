@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useRef } from 'react'
 import {
   Upload,
   X,
@@ -42,6 +42,7 @@ export default function CsvImportModal({
   const [editedCategories, setEditedCategories] = useState({}) // rowNumber -> categoryId
   const [statusFilter, setStatusFilter] = useState('all') // all | ok | transfer | duplicate | error
   const [errorMsg, setErrorMsg] = useState('')
+  const fileInputRef = useRef(null)
 
   function resetState() {
     setFile(null)
@@ -51,11 +52,21 @@ export default function CsvImportModal({
     setEditedCategories({})
     setStatusFilter('all')
     setErrorMsg('')
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
+    }
   }
 
   function handleClose() {
     resetState()
     onClose()
+  }
+
+  function handleDrop(e) {
+    e.preventDefault()
+    if (e.dataTransfer?.files?.length) {
+      handleFileSelected(e.dataTransfer.files[0])
+    }
   }
 
   function handleFileSelected(selectedFile) {
@@ -236,14 +247,30 @@ export default function CsvImportModal({
 
         {!parsedData ? (
           <div className="file-drop-area">
-            <input
-              type="file"
-              id="csv-file-input"
-              accept=".csv,text/csv,text/plain"
-              style={{ display: 'none' }}
-              onChange={(e) => handleFileSelected(e.target.files?.[0])}
-            />
-            <label htmlFor="csv-file-input" className="file-drop-box">
+            <div
+              className="file-drop-box"
+              onClick={() => fileInputRef.current?.click()}
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={handleDrop}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  fileInputRef.current?.click()
+                }
+              }}
+            >
+              <input
+                type="file"
+                ref={fileInputRef}
+                accept=".csv,text/csv,text/plain"
+                style={{ display: 'none' }}
+                onChange={(e) => {
+                  const selected = e.target.files?.[0]
+                  if (selected) handleFileSelected(selected)
+                  e.target.value = ''
+                }}
+              />
               <Upload size={38} className="upload-icon" />
               <p className="file-prompt">
                 <strong>Click to choose a CSV file</strong> or drag & drop here
@@ -251,7 +278,7 @@ export default function CsvImportModal({
               <p className="muted small">
                 Supports bank statements (ZEN, mBank, PKO, ING, etc.) and Excel CSV exports.
               </p>
-            </label>
+            </div>
 
             <div className="template-box">
               <p className="muted small">
@@ -304,6 +331,7 @@ export default function CsvImportModal({
                   onClick={() => {
                     setParsedData(null)
                     setFile(null)
+                    if (fileInputRef.current) fileInputRef.current.value = ''
                   }}
                 >
                   Change file

@@ -502,7 +502,7 @@ export default function ScreenshotImportModal({
               </div>
 
               {/* Transactions Review Table */}
-              <div className="table-scroll" style={{ maxHeight: '420px', overflowY: 'auto' }}>
+              <div className="table-scroll">
                 <table className="category-matrix-table preview-table">
                   <thead>
                     <tr>

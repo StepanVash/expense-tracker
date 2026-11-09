@@ -151,14 +151,6 @@ export default function Transactions({ month }) {
         )}
       </section>
 
-      <CsvImportModal
-        isOpen={isCsvModalOpen}
-        onClose={() => setIsCsvModalOpen(false)}
-        categories={categories}
-        transactions={transactions}
-        onImportComplete={handleImportComplete}
-      />
-
       <section className="panel">
         <h2>
           {formatMonth(month)} <span className="count">{monthCount}</span>

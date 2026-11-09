@@ -124,7 +124,8 @@ export function parseScreenshotText(text, options = {}) {
     if (!currentDate) continue
 
     // Filter out phone numbers and common app chrome noise
-    if (/^\+?\d{10,14}$/.test(line.replace(/[\s\(\)\-]/g, ''))) {
+    const digitsOnly = line.replace(/[^\d]/g, '')
+    if (digitsOnly.length >= 10 && digitsOnly.length <= 13 && !AMOUNT_REGEX.test(line)) {
       continue
     }
 
@@ -152,8 +153,12 @@ export function parseScreenshotText(text, options = {}) {
         title = 'Bank transaction'
       }
 
-      // Clean single-letter avatar prefixes from title (e.g. "b ODBIORCA..." -> "ODBIORCA...", "o ОСББ..." -> "ОСББ...")
-      title = title.replace(/^[a-zєo\W]{1,2}\s+/i, '').replace(/[\.]{2,}$/, '').trim()
+      // Clean single-letter avatar prefixes or stray numbers from title (e.g. "b ODBIORCA..." -> "ODBIORCA...", "9 Газ" -> "Газ", "o ОСББ..." -> "ОСББ...")
+      title = title
+        .replace(/^[a-zєo\W\d]{1,2}\s+/i, '')
+        .replace(/[\.]{2,}$/, '')
+        .replace(/\s+[a-zа-яєії]$/i, '')
+        .trim()
 
       // Determine income vs expense (in Ukrainian apps, "Від:" or unsigned amounts are income)
       const isIncome = !isNegative && (line.includes('Від:') || !line.includes('-'))

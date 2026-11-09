@@ -39,6 +39,21 @@ export default function App() {
     return cleanup
   }, [])
 
+  // Strictly lock horizontal window scrolling to 0 so page never pans/shifts sideways
+  useEffect(() => {
+    const lockHorizontal = () => {
+      if (window.scrollX !== 0) {
+        window.scrollTo(0, window.scrollY)
+      }
+    }
+    window.addEventListener('scroll', lockHorizontal, { passive: true })
+    window.addEventListener('resize', lockHorizontal, { passive: true })
+    return () => {
+      window.removeEventListener('scroll', lockHorizontal)
+      window.removeEventListener('resize', lockHorizontal)
+    }
+  }, [])
+
   function cycleTheme() {
     const nextTheme = theme === 'light' ? 'dark' : theme === 'dark' ? 'system' : 'light'
     setTheme(nextTheme)
