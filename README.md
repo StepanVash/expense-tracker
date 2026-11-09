@@ -27,6 +27,6 @@ npm.cmd test        # run automated checks
 2. ✅ Categories: defaults from Excel, Settings page to add / rename / delete
 3. ✅ Add & list transactions: form, category suggestions, search, filters, edit, delete, CSV statement import
 4. ✅ Monthly Insights dashboard: charts, motivational status banner, planned vs actual budgets, top 5 expenses
-5. Import Excel
-6. Year view
+5. Import Excel (on hold until your final file is ready)
+6. ✅ Year view: month × category matrix table, annual totals, monthly averages, trend charts, CSV export
 7. Backup + polish

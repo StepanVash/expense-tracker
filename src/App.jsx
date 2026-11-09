@@ -16,6 +16,7 @@ import { formatMoney, formatMonth, currentMonth, shiftMonth } from './format.js'
 import Settings from './pages/Settings.jsx'
 import Transactions from './pages/Transactions.jsx'
 import Dashboard from './pages/Dashboard.jsx'
+import YearView from './pages/YearView.jsx'
 import MonthYearPicker from './components/MonthYearPicker.jsx'
 
 const TABS = [
@@ -24,10 +25,6 @@ const TABS = [
   { id: 'year', label: 'Year', icon: CalendarRange },
   { id: 'settings', label: 'Settings', icon: SettingsIcon },
 ]
-
-const COMING_SOON = {
-  year: { step: 6, text: 'Month × category table and yearly trends (replaces the "2026" sheet).' },
-}
 
 export default function App() {
   const [tab, setTab] = useState('dashboard')
@@ -59,18 +56,16 @@ export default function App() {
       <main className="content">
         {tab === 'dashboard' && <Dashboard month={month} onNavigateTab={setTab} />}
         {tab === 'transactions' && <Transactions month={month} />}
+        {tab === 'year' && (
+          <YearView
+            onSelectMonth={(selected) => {
+              setMonth(selected)
+              setTab('dashboard')
+            }}
+          />
+        )}
         {tab === 'settings' && <Settings />}
-        {COMING_SOON[tab] && <ComingSoon {...COMING_SOON[tab]} />}
       </main>
-    </div>
-  )
-}
-
-function ComingSoon({ step, text }) {
-  return (
-    <div className="empty">
-      <p>🚧 Coming in Step {step}</p>
-      <p className="muted">{text}</p>
     </div>
   )
 }

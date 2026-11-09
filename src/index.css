@@ -639,8 +639,153 @@ button {
   padding: 12px;
 }
 
-.budget-totals-row td.over {
-  color: #c0392b;
+/* ---------- year view ---------- */
+.year-view-page {
+  display: grid;
+  gap: 20px;
+}
+
+.year-header-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.year-stepper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.year-title {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.year-matrix-wrapper {
+  overflow-x: auto;
+  margin-top: 10px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+}
+
+.year-matrix-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.year-matrix-table th {
+  padding: 8px 10px;
+  border-bottom: 2px solid var(--border);
+  text-align: right;
+  font-weight: 600;
+  color: var(--muted);
+  background: #f8fafc;
+  white-space: nowrap;
+}
+
+.year-matrix-table th.sticky-col {
+  text-align: left;
+}
+
+.year-matrix-table td {
+  padding: 7px 10px;
+  border-bottom: 1px solid #f1f5f9;
+  text-align: right;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.year-matrix-table td.sticky-col {
+  text-align: left;
+}
+
+.sticky-col {
+  position: sticky;
+  left: 0;
+  background: #ffffff;
+  z-index: 5;
+  min-width: 180px;
+  border-right: 1px solid var(--border);
+}
+
+.matrix-category-row:hover td {
+  background: #f8fafc;
+}
+
+.matrix-category-row:hover .sticky-col {
+  background: #f1f5f9;
+}
+
+.month-jump-btn {
+  border: none;
+  background: transparent;
+  font: inherit;
+  color: var(--primary);
+  font-weight: 700;
+  cursor: pointer;
+  padding: 3px 6px;
+  border-radius: 6px;
+  transition: background 0.15s ease;
+}
+
+.month-jump-btn:hover {
+  background: #edf5f2;
+}
+
+.matrix-summary-row {
+  font-weight: 700;
+  background: #f8fafc;
+}
+
+.matrix-summary-row .sticky-col {
+  background: #f8fafc;
+}
+
+.matrix-summary-row.income td {
+  color: var(--income);
+}
+
+.matrix-summary-row.expense td {
+  color: var(--expense);
+}
+
+.matrix-summary-row.savings td {
+  color: #1e293b;
+}
+
+.matrix-divider-row {
+  background: #f1f5f9;
+}
+
+.matrix-divider-row td {
+  padding: 6px 12px;
+  text-align: left;
+}
+
+.divider-label {
+  font-weight: 700;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--muted);
+}
+
+.total-col-header,
+.total-cell {
+  border-left: 2px solid var(--border);
+  background: #fafaf9;
+  font-weight: 700;
+}
+
+.avg-col-header,
+.avg-cell {
+  background: #fafaf9;
 }
 
 /* ---------- empty / placeholder ---------- */

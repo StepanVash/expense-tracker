@@ -103,7 +103,7 @@ describe('App', () => {
     click(tab('Transactions'))
     expect(container.textContent).toContain('Add transaction')
     click(tab('Year'))
-    expect(container.textContent).toContain('Coming in Step 6')
+    expect(container.textContent).toContain('Year Overview')
     click(tab('Settings'))
     expect(container.textContent).toContain('Expense categories')
     click(tab('Dashboard'))
