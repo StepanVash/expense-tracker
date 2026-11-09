@@ -128,4 +128,31 @@ describe('YearView Page', () => {
     expect(groceryRow.textContent).toContain('2500') // 2027
     expect(groceryRow.textContent).toContain('-17%') // -500 / 3000 = -17%
   })
+
+  it('switches to Compare Seasons mode and compares expenses by season', () => {
+    const gCat = cat('Grocery')
+
+    // Summer (July)
+    storage.addTransaction({ type: 'expense', date: '2026-07-10', amount: 1200, categoryId: gCat.id })
+    // Autumn (October)
+    storage.addTransaction({ type: 'expense', date: '2026-10-15', amount: 800, categoryId: gCat.id })
+
+    mount()
+
+    // Switch to Compare Seasons
+    const seasonsTab = [...container.querySelectorAll('.mode-btn')].find((b) =>
+      b.textContent.includes('Compare Seasons'),
+    )
+    act(() => seasonsTab.click())
+
+    expect(container.textContent).toContain('Summer')
+    expect(container.textContent).toContain('Autumn')
+    expect(container.textContent).toContain('Winter')
+    expect(container.textContent).toContain('Spring')
+    expect(container.textContent).toContain('Category Breakdown by Season')
+
+    // Grocery row in season table
+    expect(container.textContent).toContain('1200')
+    expect(container.textContent).toContain('800')
+  })
 })

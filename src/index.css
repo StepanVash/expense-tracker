@@ -2040,6 +2040,170 @@ button {
   gap: 10px;
 }
 
+/* ---------- Seasonal Analytics Styles ---------- */
+.season-mode-toggle {
+  display: flex;
+  gap: 8px;
+}
+
+.season-year-picker {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0 12px 0;
+}
+
+.picker-label {
+  font-weight: 600;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.season-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.season-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-top: 4px solid var(--primary);
+  border-radius: var(--radius);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.season-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 8px;
+}
+
+.season-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.season-emoji {
+  font-size: 1.3rem;
+}
+
+.season-name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.season-months-tag {
+  font-size: 0.76rem;
+  color: var(--muted);
+  background: var(--bg);
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-weight: 500;
+}
+
+.season-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.season-stat-item {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.season-stat-label {
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+.season-stat-value {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.season-stat-value.expense {
+  color: var(--expense);
+}
+
+.season-stat-value.income {
+  color: var(--income);
+}
+
+.season-stat-value.savings {
+  color: var(--savings);
+}
+
+.season-stat-value.small {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.season-stat-share {
+  font-size: 0.72rem;
+  color: var(--muted);
+  margin-left: 4px;
+}
+
+.season-col .sub-hdr {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 400;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.season-selector-pair {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin: 16px 0 24px 0;
+}
+
+.season-pick-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  min-width: 260px;
+}
+
+.season-pick-box h3 {
+  margin: 0 0 10px 0;
+  font-size: 1rem;
+  color: var(--text);
+}
+
+.season-pick-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.season-pick-row select {
+  font: inherit;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  font-weight: 500;
+}
+
 /* ---------- Responsive Polish ---------- */
 @media (max-width: 768px) {
   .app {

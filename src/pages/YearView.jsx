@@ -24,6 +24,7 @@ import { getTransactions, getCategories } from '../storage.js'
 import { formatMoney, formatMonth } from '../format.js'
 import { MIN_MONTH } from '../storage.js'
 import YearComparisonView from '../components/YearComparisonView.jsx'
+import SeasonComparisonView from '../components/SeasonComparisonView.jsx'
 
 const MONTH_KEYS = [
   '01', '02', '03', '04', '05', '06',
@@ -190,15 +191,22 @@ export default function YearView({ onSelectMonth }) {
 
   return (
     <div className="year-view-page">
-      {/* View Mode Toggle: Single Year vs Compare Years */}
+      {/* View Mode Toggle: Single Year vs Compare Seasons vs Compare Years */}
       <div className="year-mode-bar">
-        <div className="view-mode-toggle" role="tablist" aria-label="Year View Mode">
+        <div className="view-mode-toggle" role="tablist" aria-label="Analytics View Mode">
           <button
             type="button"
             className={`mode-btn ${viewMode === 'single' ? 'active' : ''}`}
             onClick={() => setViewMode('single')}
           >
             12-Month Matrix
+          </button>
+          <button
+            type="button"
+            className={`mode-btn ${viewMode === 'seasons' ? 'active' : ''}`}
+            onClick={() => setViewMode('seasons')}
+          >
+            Compare Seasons
           </button>
           <button
             type="button"
@@ -216,6 +224,14 @@ export default function YearView({ onSelectMonth }) {
           categories={categories}
           defaultYearA={year}
           defaultYearB={year + 1}
+        />
+      ) : viewMode === 'seasons' ? (
+        <SeasonComparisonView
+          transactions={transactions}
+          categories={categories}
+          categoryMap={categoryMap}
+          expenseCategories={expenseCategories}
+          incomeCategories={incomeCategories}
         />
       ) : (
         <>

@@ -3,7 +3,7 @@ import {
   Wallet,
   LayoutDashboard,
   ListOrdered,
-  CalendarRange,
+  BarChart3,
   Settings as SettingsIcon,
   Sun,
   Moon,
@@ -21,7 +21,7 @@ import { getStoredTheme, applyTheme, initTheme } from './theme.js'
 const TABS = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { id: 'transactions', label: 'Transactions', icon: ListOrdered },
-  { id: 'year', label: 'Year', icon: CalendarRange },
+  { id: 'analytics', label: 'Analytics', icon: BarChart3 },
   { id: 'settings', label: 'Settings', icon: SettingsIcon },
 ]
 
@@ -84,7 +84,7 @@ export default function App() {
       <main className="content">
         {tab === 'dashboard' && <Dashboard month={month} onNavigateTab={setTab} />}
         {tab === 'transactions' && <Transactions month={month} />}
-        {tab === 'year' && (
+        {tab === 'analytics' && (
           <YearView
             onSelectMonth={(selected) => {
               setMonth(selected)
