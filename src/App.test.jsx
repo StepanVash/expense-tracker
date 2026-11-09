@@ -81,7 +81,9 @@ describe('App', () => {
   it('navigates between tabs', () => {
     render()
     click(tab('Transactions'))
-    expect(container.textContent).toContain('Coming in Step 3')
+    expect(container.textContent).toContain('Add transaction')
+    click(tab('Year'))
+    expect(container.textContent).toContain('Coming in Step 6')
     click(tab('Settings'))
     expect(container.textContent).toContain('Expense categories')
     click(tab('Dashboard'))

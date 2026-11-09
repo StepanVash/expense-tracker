@@ -25,7 +25,7 @@ npm.cmd test        # run automated checks
 
 1. ✅ Scaffold: app shell, storage layer, tests
 2. ✅ Categories: defaults from Excel, Settings page to add / rename / delete
-3. Add & list transactions
+3. ✅ Add & list transactions: form, category suggestions, search, filters, edit, delete
 4. Monthly Insights dashboard
 5. Import Excel
 6. Year view

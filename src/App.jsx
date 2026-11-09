@@ -14,6 +14,7 @@ import {
 import { getTransactionsForMonth, MIN_MONTH } from './storage.js'
 import { formatMoney, formatMonth, currentMonth, shiftMonth } from './format.js'
 import Settings from './pages/Settings.jsx'
+import Transactions from './pages/Transactions.jsx'
 
 const TABS = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -23,7 +24,6 @@ const TABS = [
 ]
 
 const COMING_SOON = {
-  transactions: { step: 3, text: 'Add, edit, search and filter your income and expenses.' },
   year: { step: 6, text: 'Month × category table and yearly trends (replaces the "2026" sheet).' },
 }
 
@@ -70,6 +70,7 @@ export default function App() {
 
       <main className="content">
         {tab === 'dashboard' && <Dashboard month={month} />}
+        {tab === 'transactions' && <Transactions month={month} />}
         {tab === 'settings' && <Settings />}
         {COMING_SOON[tab] && <ComingSoon {...COMING_SOON[tab]} />}
       </main>
@@ -96,7 +97,7 @@ function Dashboard({ month }) {
       {totals.count === 0 && (
         <div className="empty">
           <p>No transactions in {formatMonth(month)} yet.</p>
-          <p className="muted">Adding transactions comes in Step 3, and importing your Excel file in Step 5.</p>
+          <p className="muted">Add some in the Transactions tab, or import your Excel file later (Step 5).</p>
         </div>
       )}
     </>

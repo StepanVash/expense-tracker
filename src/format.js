@@ -17,6 +17,17 @@ export function currentMonth(date = new Date()) {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
 }
 
+/** Today as 'YYYY-MM-DD' (local time). */
+export function todayISO(date = new Date()) {
+  return `${currentMonth(date)}-${String(date.getDate()).padStart(2, '0')}`
+}
+
+/** '2026-01-09' -> '09.01.2026' */
+export function formatDate(iso) {
+  const [y, m, d] = iso.split('-')
+  return `${d}.${m}.${y}`
+}
+
 /** Move a 'YYYY-MM' month by `delta` months (e.g. -1 = previous month). */
 export function shiftMonth(month, delta) {
   const [y, m] = month.split('-').map(Number)

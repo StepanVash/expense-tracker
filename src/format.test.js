@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { formatMoney, formatMonth, currentMonth, shiftMonth } from './format.js'
+import { formatMoney, formatMonth, currentMonth, shiftMonth, todayISO, formatDate } from './format.js'
 
 describe('formatMonth', () => {
   it('formats YYYY-MM as a readable month', () => {
@@ -12,6 +12,17 @@ describe('currentMonth', () => {
   it('returns YYYY-MM with a zero-padded month', () => {
     expect(currentMonth(new Date(2026, 0, 15))).toBe('2026-01')
     expect(currentMonth(new Date(2026, 10, 9))).toBe('2026-11')
+  })
+})
+
+describe('todayISO / formatDate', () => {
+  it('builds a zero-padded YYYY-MM-DD date', () => {
+    expect(todayISO(new Date(2026, 0, 5))).toBe('2026-01-05')
+    expect(todayISO(new Date(2026, 10, 19))).toBe('2026-11-19')
+  })
+
+  it('shows dates as DD.MM.YYYY', () => {
+    expect(formatDate('2026-01-09')).toBe('09.01.2026')
   })
 })
 
