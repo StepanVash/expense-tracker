@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { act } from 'react'
 import { createRoot } from 'react-dom/client'
 import Settings from './Settings.jsx'
@@ -21,6 +21,7 @@ beforeEach(() => {
 afterEach(() => {
   act(() => root.unmount())
   container.remove()
+  vi.restoreAllMocks()
 })
 
 /** Type into a React-controlled input. */
@@ -97,5 +98,83 @@ describe('Settings page', () => {
     act(() => type(input, 'Coffee & snacks'))
     act(() => input.form.querySelector('button[type=submit]').click())
     expect(container.textContent).toContain('Coffee & snacks')
+  })
+
+  it('switches themes between Light, Dark, and System', () => {
+    const darkBtn = Array.from(container.querySelectorAll('.theme-toggle-btn')).find((b) =>
+      b.textContent.includes('Dark'),
+    )
+    act(() => darkBtn.click())
+    expect(document.documentElement.dataset.theme).toBe('dark')
+
+    const lightBtn = Array.from(container.querySelectorAll('.theme-toggle-btn')).find((b) =>
+      b.textContent.includes('Light'),
+    )
+    act(() => lightBtn.click())
+    expect(document.documentElement.dataset.theme).toBe('light')
+  })
+
+  it('displays learned merchant rules and allows deleting them', () => {
+    const grocery = storage.getCategories().find((c) => c.name === 'Grocery')
+    storage.saveLearnedRule({ pattern: 'biedronka', categoryId: grocery.id, type: 'expense' })
+
+    // unmount and mount new Settings to pick up saved rule
+    act(() => root.unmount())
+    root = createRoot(container)
+    act(() => root.render(<Settings />))
+    expect(container.textContent).toContain('biedronka')
+
+    vi.spyOn(window, 'confirm').mockReturnValue(true)
+    const deleteBtn = container.querySelector('[aria-label=\'Delete rule for "biedronka"\']')
+    expect(deleteBtn).not.toBeNull()
+
+    act(() => deleteBtn.click())
+    expect(storage.getLearnedRules()).toHaveLength(0)
+    expect(container.textContent).toContain('Forgot learned rule')
+  })
+
+  it('downloads a JSON backup file', () => {
+    const createObjectURL = vi.fn().mockReturnValue('blob:mock-url')
+    const revokeObjectURL = vi.fn()
+    window.URL.createObjectURL = createObjectURL
+    window.URL.revokeObjectURL = revokeObjectURL
+    const clickSpy = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {})
+
+    const downloadBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent.includes('Download Backup'),
+    )
+    expect(downloadBtn).not.toBeNull()
+    act(() => downloadBtn.click())
+
+    expect(createObjectURL).toHaveBeenCalled()
+    expect(clickSpy).toHaveBeenCalled()
+    expect(container.textContent).toContain('Backup exported')
+  })
+
+  it('resets all data when confirmed in Danger Zone', () => {
+    // Add custom transaction first
+    storage.addTransaction({
+      type: 'expense',
+      date: '2026-02-10',
+      amount: 120,
+      title: 'Headphones',
+    })
+    expect(storage.getTransactions()).toHaveLength(1)
+
+    const resetBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent.includes('Reset All Data'),
+    )
+    act(() => resetBtn.click())
+
+    // Confirmation box is shown
+    expect(container.textContent).toContain('Are you sure you want to reset all data?')
+
+    const confirmBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent.includes('Yes, reset everything'),
+    )
+    act(() => confirmBtn.click())
+
+    expect(storage.getTransactions()).toHaveLength(0)
+    expect(container.textContent).toContain('All data has been reset to defaults')
   })
 })

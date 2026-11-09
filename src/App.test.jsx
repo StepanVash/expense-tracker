@@ -109,4 +109,12 @@ describe('App', () => {
     click(tab('Dashboard'))
     expect(container.querySelectorAll('.card')).toHaveLength(4)
   })
+
+  it('cycles theme from the header quick button', () => {
+    render()
+    const themeBtn = container.querySelector('.theme-quick-btn')
+    expect(themeBtn).not.toBeNull()
+    click(themeBtn)
+    expect(document.documentElement.dataset.theme).toBeDefined()
+  })
 })

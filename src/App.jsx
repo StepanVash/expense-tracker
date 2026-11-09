@@ -1,23 +1,22 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   Wallet,
   LayoutDashboard,
   ListOrdered,
   CalendarRange,
   Settings as SettingsIcon,
-  ChevronLeft,
-  ChevronRight,
-  TrendingUp,
-  TrendingDown,
-  PiggyBank,
+  Sun,
+  Moon,
+  Laptop,
 } from 'lucide-react'
-import { getTransactionsForMonth, MIN_MONTH } from './storage.js'
-import { formatMoney, formatMonth, currentMonth, shiftMonth } from './format.js'
+import { MIN_MONTH } from './storage.js'
+import { currentMonth } from './format.js'
 import Settings from './pages/Settings.jsx'
 import Transactions from './pages/Transactions.jsx'
 import Dashboard from './pages/Dashboard.jsx'
 import YearView from './pages/YearView.jsx'
 import MonthYearPicker from './components/MonthYearPicker.jsx'
+import { getStoredTheme, applyTheme, initTheme } from './theme.js'
 
 const TABS = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -29,19 +28,48 @@ const TABS = [
 export default function App() {
   const [tab, setTab] = useState('dashboard')
   const [selectedMonth, setMonth] = useState(currentMonth)
+  const [dataVersion, setDataVersion] = useState(0)
+  const [theme, setTheme] = useState(getStoredTheme)
+
   // Never show a month before the tracker's start, whatever the saved state is
   const month = selectedMonth < MIN_MONTH ? MIN_MONTH : selectedMonth
-  const atStart = month <= MIN_MONTH
+
+  useEffect(() => {
+    const cleanup = initTheme()
+    return cleanup
+  }, [])
+
+  function cycleTheme() {
+    const nextTheme = theme === 'light' ? 'dark' : theme === 'dark' ? 'system' : 'light'
+    setTheme(nextTheme)
+    applyTheme(nextTheme)
+  }
+
+  function handleDataChanged() {
+    setDataVersion((v) => v + 1)
+  }
 
   return (
-    <div className="app">
+    <div className="app" key={dataVersion}>
       <header className="header">
         <div className="brand">
           <Wallet size={26} />
           <span>Expense Tracker</span>
         </div>
 
-        <MonthYearPicker month={month} onChange={setMonth} />
+        <div className="header-controls">
+          <button
+            type="button"
+            className="theme-quick-btn"
+            title={`Current theme: ${theme}. Click to change.`}
+            aria-label={`Current theme: ${theme}. Click to change.`}
+            onClick={cycleTheme}
+          >
+            {theme === 'dark' ? <Moon size={18} /> : theme === 'light' ? <Sun size={18} /> : <Laptop size={18} />}
+          </button>
+
+          <MonthYearPicker month={month} onChange={setMonth} />
+        </div>
       </header>
 
       <nav className="tabs">
@@ -64,7 +92,7 @@ export default function App() {
             }}
           />
         )}
-        {tab === 'settings' && <Settings />}
+        {tab === 'settings' && <Settings onDataChanged={handleDataChanged} />}
       </main>
     </div>
   )
