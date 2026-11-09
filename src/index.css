@@ -788,6 +788,135 @@ button {
   background: #fafaf9;
 }
 
+/* ---------- year comparison view ---------- */
+.year-mode-bar {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2px;
+}
+
+.view-mode-toggle {
+  display: inline-flex;
+  background: #e2e8f0;
+  border-radius: 999px;
+  padding: 4px;
+  gap: 4px;
+}
+
+.mode-btn {
+  border: none;
+  background: transparent;
+  font: inherit;
+  padding: 6px 16px;
+  border-radius: 999px;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mode-btn.active {
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.comparison-controls-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.years-selector-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.year-select-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.year-select-label select {
+  font: inherit;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  font-weight: 700;
+}
+
+.swap-btn {
+  background: #f1f5f9;
+  border-radius: 8px;
+}
+
+.swap-btn:hover {
+  background: #e2e8f0;
+}
+
+.compare-card-values {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 8px 0 4px;
+}
+
+.compare-year-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.card-value-small {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.compare-arrow {
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+.compare-values-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 8px 0 4px;
+  font-size: 1.05rem;
+}
+
+.metric-toggle {
+  display: inline-flex;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.metric-toggle button {
+  border: none;
+  background: transparent;
+  font: inherit;
+  padding: 5px 12px;
+  font-size: 0.82rem;
+  cursor: pointer;
+  color: var(--muted);
+}
+
+.metric-toggle button.active {
+  background: var(--primary);
+  color: #fff;
+  font-weight: 600;
+}
+
 /* ---------- empty / placeholder ---------- */
 .empty {
   background: var(--surface);

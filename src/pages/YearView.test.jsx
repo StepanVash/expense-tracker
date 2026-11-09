@@ -95,4 +95,37 @@ describe('YearView Page', () => {
     act(() => janBtn.click())
     expect(onSelect).toHaveBeenCalledWith('2026-01')
   })
+
+  it('switches to Year Comparison mode and compares two years side-by-side', () => {
+    const gCat = cat('Grocery')
+    const sCat = cat('Salary')
+
+    // 2026: 10k income, 3k grocery
+    storage.addTransaction({ type: 'income', date: '2026-05-10', amount: 10000, categoryId: sCat.id })
+    storage.addTransaction({ type: 'expense', date: '2026-05-15', amount: 3000, categoryId: gCat.id })
+
+    // 2027: 12k income, 2.5k grocery (saved 500!)
+    storage.addTransaction({ type: 'income', date: '2027-05-10', amount: 12000, categoryId: sCat.id })
+    storage.addTransaction({ type: 'expense', date: '2027-05-15', amount: 2500, categoryId: gCat.id })
+
+    mount()
+
+    // Switch to comparison tab
+    const compareTab = [...container.querySelectorAll('.mode-btn')].find((b) =>
+      b.textContent.includes('Compare Years'),
+    )
+    act(() => compareTab.click())
+
+    expect(container.textContent).toContain('Monthly Comparison: 2026 vs. 2027')
+    expect(container.textContent).toContain('Category-by-Category YoY Comparison')
+
+    // Grocery row should show 2026 vs 2027 and percentage saved
+    const groceryRow = [...container.querySelectorAll('.compare-table tbody tr')].find((r) =>
+      r.textContent.includes('Grocery'),
+    )
+    expect(groceryRow).not.toBeNull()
+    expect(groceryRow.textContent).toContain('3000') // 2026
+    expect(groceryRow.textContent).toContain('2500') // 2027
+    expect(groceryRow.textContent).toContain('-17%') // -500 / 3000 = -17%
+  })
 })

@@ -23,6 +23,7 @@ import {
 import { getTransactions, getCategories } from '../storage.js'
 import { formatMoney, formatMonth } from '../format.js'
 import { MIN_MONTH } from '../storage.js'
+import YearComparisonView from '../components/YearComparisonView.jsx'
 
 const MONTH_KEYS = [
   '01', '02', '03', '04', '05', '06',
@@ -35,6 +36,7 @@ const MONTH_LABELS = [
 ]
 
 export default function YearView({ onSelectMonth }) {
+  const [viewMode, setViewMode] = useState('single') // 'single' | 'compare'
   const [year, setYear] = useState(2026)
   const minYear = Number(MIN_MONTH.slice(0, 4)) // 2026
 
@@ -188,8 +190,37 @@ export default function YearView({ onSelectMonth }) {
 
   return (
     <div className="year-view-page">
-      {/* Year Selector Header */}
-      <div className="year-header-panel panel">
+      {/* View Mode Toggle: Single Year vs Compare Years */}
+      <div className="year-mode-bar">
+        <div className="view-mode-toggle" role="tablist" aria-label="Year View Mode">
+          <button
+            type="button"
+            className={`mode-btn ${viewMode === 'single' ? 'active' : ''}`}
+            onClick={() => setViewMode('single')}
+          >
+            12-Month Matrix
+          </button>
+          <button
+            type="button"
+            className={`mode-btn ${viewMode === 'compare' ? 'active' : ''}`}
+            onClick={() => setViewMode('compare')}
+          >
+            Compare Years (YoY)
+          </button>
+        </div>
+      </div>
+
+      {viewMode === 'compare' ? (
+        <YearComparisonView
+          transactions={transactions}
+          categories={categories}
+          defaultYearA={year}
+          defaultYearB={year + 1}
+        />
+      ) : (
+        <>
+          {/* Year Selector Header */}
+          <div className="year-header-panel panel">
         <div className="year-stepper">
           <button
             type="button"
@@ -427,6 +458,8 @@ export default function YearView({ onSelectMonth }) {
           </table>
         </div>
       </section>
+        </>
+      )}
     </div>
   )
 }
