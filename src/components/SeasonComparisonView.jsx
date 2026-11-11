@@ -310,9 +310,21 @@ export default function SeasonComparisonView({
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={chartData} margin={{ top: 20, right: 30, left: 10, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
-                  <XAxis dataKey="name" tick={{ fill: 'currentColor' }} />
-                  <YAxis tick={{ fill: 'currentColor' }} tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} />
-                  <Tooltip formatter={(value) => [formatMoney(value), '']} />
+                  <XAxis dataKey="name" tick={{ fill: 'var(--muted)' }} />
+                  <YAxis tick={{ fill: 'var(--muted)' }} tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} />
+                  <Tooltip
+                    formatter={(value) => [formatMoney(value), '']}
+                    cursor={{ fill: 'var(--chart-cursor, rgba(148, 163, 184, 0.14))' }}
+                    contentStyle={{
+                      backgroundColor: 'var(--surface)',
+                      borderColor: 'var(--border)',
+                      borderRadius: '10px',
+                      color: 'var(--text)',
+                      boxShadow: '0 6px 20px rgba(0,0,0,0.18)',
+                    }}
+                    labelStyle={{ color: 'var(--text)', fontWeight: 700, marginBottom: '4px' }}
+                    itemStyle={{ fontWeight: 600 }}
+                  />
                   <Legend />
                   <Bar dataKey="Expenses" fill="#b78055" radius={[4, 4, 0, 0]} />
                   <Bar dataKey="Income" fill="#337a6b" radius={[4, 4, 0, 0]} />

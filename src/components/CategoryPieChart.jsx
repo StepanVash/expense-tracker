@@ -48,7 +48,7 @@ export default function CategoryPieChart({ data }) {
               <Cell
                 key={`cell-${index}`}
                 fill={entry.color || '#999999'}
-                stroke={activeIndex === index ? '#1f2430' : 'transparent'}
+                stroke={activeIndex === index ? 'var(--text)' : 'transparent'}
                 strokeWidth={2}
               />
             ))}

@@ -8,6 +8,7 @@
   --income: #337a6b;
   --expense: #b78055;
   --savings: #3b6fb6;
+  --chart-cursor: rgba(148, 163, 184, 0.16);
   --radius: 14px;
 
   font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
@@ -25,6 +26,7 @@
   --income: #479f8c;
   --expense: #e0966b;
   --savings: #5b9bf8;
+  --chart-cursor: rgba(148, 163, 184, 0.12);
 }
 
 [data-theme="dark"] input,
@@ -3338,6 +3340,16 @@ svg {
 
 [data-theme="dark"] .chart-tooltip .tooltip-val {
   color: #f0f6fc;
+}
+
+[data-theme="dark"] .recharts-default-tooltip {
+  background-color: var(--surface) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+[data-theme="dark"] .recharts-tooltip-label {
+  color: var(--text) !important;
 }
 
 

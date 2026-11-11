@@ -295,20 +295,24 @@ export default function YearComparisonView({
         <div style={{ width: '100%', height: 280 }}>
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={monthlyChartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-              <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#64748b' }} />
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
+              <XAxis dataKey="name" tick={{ fontSize: 12, fill: 'var(--muted)' }} />
               <YAxis
-                tick={{ fontSize: 12, fill: '#64748b' }}
+                tick={{ fontSize: 12, fill: 'var(--muted)' }}
                 tickFormatter={(val) => (val >= 1000 ? `${Math.round(val / 1000)}k` : val)}
               />
               <Tooltip
                 formatter={(val) => [formatMoney(val)]}
+                cursor={{ fill: 'var(--chart-cursor, rgba(148, 163, 184, 0.14))' }}
                 contentStyle={{
-                  backgroundColor: '#ffffff',
-                  borderColor: '#e2e8f0',
+                  backgroundColor: 'var(--surface)',
+                  borderColor: 'var(--border)',
                   borderRadius: '10px',
-                  boxShadow: '0 6px 20px rgba(0,0,0,0.1)',
+                  color: 'var(--text)',
+                  boxShadow: '0 6px 20px rgba(0,0,0,0.18)',
                 }}
+                labelStyle={{ color: 'var(--text)', fontWeight: 700, marginBottom: '4px' }}
+                itemStyle={{ fontWeight: 600 }}
               />
               <Legend verticalAlign="top" height={36} />
               <Bar dataKey={String(yearA)} fill="#94a3b8" radius={[4, 4, 0, 0]} />
