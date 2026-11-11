@@ -159,3 +159,4 @@ export function resetPin(currentPin, newPin) {
 export function clearPin() {
   localStorage.removeItem(PIN_KEY)
 }
+

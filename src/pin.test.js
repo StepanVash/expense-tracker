@@ -60,3 +60,4 @@ describe('pin security helpers', () => {
     expect(verifyPin('1234')).toBe(false)
   })
 })
+

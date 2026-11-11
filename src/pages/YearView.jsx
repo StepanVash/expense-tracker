@@ -38,8 +38,8 @@ const MONTH_LABELS = [
 
 export default function YearView({ onSelectMonth }) {
   const [viewMode, setViewMode] = useState('single') // 'single' | 'compare'
-  const [year, setYear] = useState(2026)
   const minYear = Number(MIN_MONTH.slice(0, 4)) // 2026
+  const [year, setYear] = useState(() => Math.max(minYear, new Date().getFullYear()))
 
   const transactions = useMemo(() => getTransactions(), [])
   const categories = useMemo(() => getCategories(), [])

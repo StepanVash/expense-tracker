@@ -17,3 +17,4 @@ timeout /t 2 /nobreak >nul 2>&1
 :: Open browser to localhost
 start http://localhost:5173
 exit /b 0
+

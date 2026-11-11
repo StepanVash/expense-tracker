@@ -3352,6 +3352,52 @@ svg {
   color: var(--text) !important;
 }
 
+[data-theme="dark"] .insight-banner.positive {
+  background: #132a24;
+  border-color: #1f4f42;
+  color: #7ee2c6;
+}
+
+[data-theme="dark"] .insight-banner.warning {
+  background: #2d1f14;
+  border-color: #5c391c;
+  color: #fdba74;
+}
+
+[data-theme="dark"] .insight-banner.neutral {
+  background: #1e2634;
+  border-color: var(--border);
+  color: var(--text);
+}
+
+[data-theme="dark"] .view-mode-toggle {
+  background: #1e2633;
+  border: 1px solid var(--border);
+}
+
+[data-theme="dark"] .swap-btn {
+  background: #1e2633;
+  color: var(--text);
+}
+
+[data-theme="dark"] .swap-btn:hover {
+  background: #283344;
+}
+
+[data-theme="dark"] .month-jump-btn:hover {
+  background: rgba(71, 159, 140, 0.16);
+}
+
+[data-theme="dark"] .pill.blue {
+  background: rgba(59, 130, 246, 0.18);
+  color: #93c5fd;
+}
+
+[data-theme="dark"] .pill.purple {
+  background: rgba(168, 85, 247, 0.18);
+  color: #d8b4fe;
+}
+
 
 /* ---------- Seasonal Matrix & Comparison Table Width & Layout ---------- */
 .category-matrix-table,

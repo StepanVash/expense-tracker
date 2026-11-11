@@ -186,3 +186,4 @@ export default function PinDialog({ initialMode, onUnlock, onResetApp }) {
     </div>
   )
 }
+

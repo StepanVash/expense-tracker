@@ -38,14 +38,15 @@ export default function SeasonComparisonView({
   incomeCategories,
 }) {
   const minYear = Number(MIN_MONTH.slice(0, 4)) // 2026
-  const [year, setYear] = useState(2026)
+  const defaultYear = Math.max(minYear, new Date().getFullYear())
+  const [year, setYear] = useState(defaultYear)
   const [subMode, setSubMode] = useState('all') // 'all' (4 seasons in year) | 'custom' (Season A vs Season B)
   const [categoryType, setCategoryType] = useState('expense') // 'expense' | 'income'
 
   // Custom comparison state
-  const [seasonAYear, setSeasonAYear] = useState(2026)
+  const [seasonAYear, setSeasonAYear] = useState(defaultYear)
   const [seasonAId, setSeasonAId] = useState('summer')
-  const [seasonBYear, setSeasonBYear] = useState(2026)
+  const [seasonBYear, setSeasonBYear] = useState(defaultYear)
   const [seasonBId, setSeasonBId] = useState('autumn')
 
   // Helper to compute stats for a specific season in a specific year

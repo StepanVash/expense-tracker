@@ -155,4 +155,22 @@ describe('YearView Page', () => {
     expect(container.textContent).toContain('1200')
     expect(container.textContent).toContain('800')
   })
+
+  it('defaults to the current year (clamped to 2026 minimum)', () => {
+    vi.useFakeTimers({ toFake: ['Date'] })
+    try {
+      vi.setSystemTime(new Date(2028, 4, 10))
+      mount()
+      expect(container.querySelector('.year-title').textContent).toContain('2028 Year Overview')
+
+      act(() => root.unmount())
+      container.remove()
+
+      vi.setSystemTime(new Date(2024, 4, 10))
+      mount()
+      expect(container.querySelector('.year-title').textContent).toContain('2026 Year Overview')
+    } finally {
+      vi.useRealTimers()
+    }
+  })
 })
