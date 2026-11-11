@@ -3,6 +3,7 @@ import { act } from 'react'
 import { createRoot } from 'react-dom/client'
 import Settings from './Settings.jsx'
 import * as storage from '../storage.js'
+import * as pinStore from '../pin.js'
 import { DEFAULT_CATEGORIES } from '../defaultCategories.js'
 
 globalThis.IS_REACT_ACT_ENVIRONMENT = true
@@ -11,6 +12,7 @@ let container, root
 
 beforeEach(() => {
   storage.clearAll()
+  pinStore.clearPin()
   storage.ensureDefaultCategories(DEFAULT_CATEGORIES)
   container = document.createElement('div')
   document.body.appendChild(container)
@@ -176,5 +178,55 @@ describe('Settings page', () => {
 
     expect(storage.getTransactions()).toHaveLength(0)
     expect(container.textContent).toContain('All data has been reset to defaults')
+  })
+
+  it('sets a new PIN and resets an existing PIN in Security & PIN', () => {
+    const newPinInput = container.querySelector('[aria-label="New PIN"]')
+    const confirmInput = container.querySelector('[aria-label="Confirm New PIN"]')
+    const form = container.querySelector('.pin-reset-form')
+
+    // Rejects mismatched confirmation
+    act(() => {
+      type(newPinInput, '1234')
+      type(confirmInput, '9999')
+    })
+    act(() => form.querySelector('button[type="submit"]').click())
+    expect(form.querySelector('.error').textContent).toContain('do not match')
+    expect(pinStore.hasPin()).toBe(false)
+
+    // Sets PIN when valid
+    act(() => {
+      type(newPinInput, '1234')
+      type(confirmInput, '1234')
+    })
+    act(() => form.querySelector('button[type="submit"]').click())
+    expect(pinStore.hasPin()).toBe(true)
+    expect(pinStore.verifyPin('1234')).toBe(true)
+    expect(container.textContent).toContain('PIN has been set successfully')
+
+    // Now Current PIN field appears to reset PIN
+    const currentInput = container.querySelector('[aria-label="Current PIN"]')
+    expect(currentInput).not.toBeNull()
+
+    // Rejects wrong current PIN
+    act(() => {
+      type(currentInput, '0000')
+      type(container.querySelector('[aria-label="New PIN"]'), '5678')
+      type(container.querySelector('[aria-label="Confirm New PIN"]'), '5678')
+    })
+    act(() => form.querySelector('button[type="submit"]').click())
+    expect(form.querySelector('.error').textContent).toContain('Current PIN is incorrect')
+    expect(pinStore.verifyPin('1234')).toBe(true)
+
+    // Resets PIN when current PIN is correct
+    act(() => {
+      type(currentInput, '1234')
+      type(container.querySelector('[aria-label="New PIN"]'), '5678')
+      type(container.querySelector('[aria-label="Confirm New PIN"]'), '5678')
+    })
+    act(() => form.querySelector('button[type="submit"]').click())
+    expect(pinStore.verifyPin('1234')).toBe(false)
+    expect(pinStore.verifyPin('5678')).toBe(true)
+    expect(container.textContent).toContain('PIN has been reset successfully')
   })
 })

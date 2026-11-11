@@ -8,6 +8,7 @@ import {
   Sun,
   Moon,
   Laptop,
+  Lock,
 } from 'lucide-react'
 import { MIN_MONTH } from './storage.js'
 import { currentMonth } from './format.js'
@@ -16,6 +17,8 @@ import Transactions from './pages/Transactions.jsx'
 import Dashboard from './pages/Dashboard.jsx'
 import YearView from './pages/YearView.jsx'
 import MonthYearPicker from './components/MonthYearPicker.jsx'
+import PinDialog from './components/PinDialog.jsx'
+import { hasPin } from './pin.js'
 import { getStoredTheme, applyTheme, initTheme } from './theme.js'
 
 const TABS = [
@@ -30,6 +33,7 @@ export default function App() {
   const [selectedMonth, setMonth] = useState(currentMonth)
   const [dataVersion, setDataVersion] = useState(0)
   const [theme, setTheme] = useState(getStoredTheme)
+  const [unlocked, setUnlocked] = useState(false)
 
   // Never show a month before the tracker's start, whatever the saved state is
   const month = selectedMonth < MIN_MONTH ? MIN_MONTH : selectedMonth
@@ -64,6 +68,18 @@ export default function App() {
     setDataVersion((v) => v + 1)
   }
 
+  if (!unlocked) {
+    return (
+      <div className="app">
+        <PinDialog
+          initialMode={hasPin() ? 'unlock' : 'setup'}
+          onUnlock={() => setUnlocked(true)}
+          onResetApp={handleDataChanged}
+        />
+      </div>
+    )
+  }
+
   return (
     <div className="app" key={dataVersion}>
       <header className="header">
@@ -73,6 +89,16 @@ export default function App() {
         </div>
 
         <div className="header-controls">
+          <button
+            type="button"
+            className="theme-quick-btn lock-btn"
+            title="Lock app"
+            aria-label="Lock app"
+            onClick={() => setUnlocked(false)}
+          >
+            <Lock size={18} />
+          </button>
+
           <button
             type="button"
             className="theme-quick-btn"
@@ -107,7 +133,7 @@ export default function App() {
             }}
           />
         )}
-        {tab === 'settings' && <Settings onDataChanged={handleDataChanged} />}
+        {tab === 'settings' && <Settings onDataChanged={handleDataChanged} onLock={() => setUnlocked(false)} />}
       </main>
     </div>
   )

@@ -3402,3 +3402,214 @@ svg {
   width: 18%;
   min-width: 120px;
 }
+
+/* ---------- PIN Lock Dialog & Security Settings ---------- */
+.pin-backdrop {
+  background: var(--bg);
+  backdrop-filter: none;
+  z-index: 100;
+}
+
+.pin-dialog-card {
+  max-width: 420px;
+  padding: 28px 26px 24px;
+  border: 1px solid var(--border);
+  gap: 18px;
+}
+
+.pin-dialog-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+}
+
+.pin-dialog-header h2 {
+  margin: 4px 0 0;
+  font-size: 1.35rem;
+  color: var(--text);
+}
+
+.pin-dialog-header p {
+  margin: 0;
+  line-height: 1.45;
+}
+
+.pin-badge {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(51, 122, 107, 0.14);
+  color: var(--primary);
+}
+
+[data-theme="dark"] .pin-badge {
+  background: rgba(71, 159, 140, 0.18);
+}
+
+.pin-dialog-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.pin-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.pin-field-group label,
+.pin-reset-field label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.pin-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.pin-input-wrap input {
+  width: 100%;
+  padding: 11px 42px 11px 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 1.1rem;
+  letter-spacing: 0.2em;
+  background: var(--bg);
+  color: var(--text);
+  box-sizing: border-box;
+}
+
+.pin-input-wrap input:focus {
+  outline: 2px solid var(--primary);
+  outline-offset: 1px;
+}
+
+.pin-eye-btn {
+  position: absolute;
+  right: 8px;
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pin-eye-btn:hover {
+  color: var(--text);
+}
+
+.pin-submit-btn {
+  width: 100%;
+  justify-content: center;
+  padding: 11px 16px;
+  font-size: 0.98rem;
+  margin-top: 2px;
+}
+
+.pin-error {
+  margin: 0;
+  text-align: center;
+}
+
+.pin-forgot-section {
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.pin-forgot-link {
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 0.85rem;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 4px 8px;
+}
+
+.pin-forgot-link:hover {
+  color: var(--text);
+}
+
+.pin-forgot-box {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pin-forgot-box .confirm-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 0.82rem;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.pin-forgot-box .confirm-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.pin-settings-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.pin-settings-header h2 {
+  margin-top: 0;
+  margin-bottom: 4px;
+}
+
+.pin-reset-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 12px;
+  align-items: end;
+  margin-top: 14px;
+}
+
+.pin-reset-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.pin-reset-field input {
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.95rem;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.pin-reset-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.pin-reset-form .error {
+  grid-column: 1 / -1;
+  margin: 2px 0 0;
+}

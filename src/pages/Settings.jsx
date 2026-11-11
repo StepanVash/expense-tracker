@@ -15,6 +15,10 @@ import {
   AlertTriangle,
   FileText,
   ShieldAlert,
+  Lock,
+  KeyRound,
+  Eye,
+  EyeOff,
 } from 'lucide-react'
 import {
   getCategories,
@@ -34,8 +38,9 @@ import {
 import { DEFAULT_CATEGORIES, COLOR_PALETTE } from '../defaultCategories.js'
 import EmojiPicker from '../components/EmojiPicker.jsx'
 import { getStoredTheme, applyTheme } from '../theme.js'
+import { hasPin, resetPin, PIN_MIN_LENGTH, PIN_MAX_LENGTH } from '../pin.js'
 
-export default function Settings({ onDataChanged }) {
+export default function Settings({ onDataChanged, onLock }) {
   const [categories, setCategories] = useState(getCategories)
   const [learnedRules, setLearnedRules] = useState(getLearnedRules)
   const [theme, setTheme] = useState(getStoredTheme)
@@ -187,6 +192,9 @@ export default function Settings({ onDataChanged }) {
           </button>
         </div>
       </section>
+
+      {/* Security & PIN */}
+      <PinSecuritySection onNotify={notify} onLock={onLock} />
 
       {/* Expense Categories */}
       <CategorySection
@@ -466,5 +474,146 @@ function CategoryForm({ initial, submitLabel, onSubmit, onCancel, resetAfterSubm
       )}
       {error && <p className="error">{error}</p>}
     </form>
+  )
+}
+
+function PinSecuritySection({ onNotify, onLock }) {
+  const [pinConfigured, setPinConfigured] = useState(hasPin)
+  const [currentPin, setCurrentPin] = useState('')
+  const [newPin, setNewPin] = useState('')
+  const [confirmPin, setConfirmPin] = useState('')
+  const [showPins, setShowPins] = useState(false)
+  const [error, setError] = useState('')
+
+  function handleDigitsChange(setter) {
+    return (e) => {
+      const digitsOnly = e.target.value.replace(/\D/g, '').slice(0, PIN_MAX_LENGTH)
+      setter(digitsOnly)
+      if (error) setError('')
+    }
+  }
+
+  function handleSubmit(e) {
+    e.preventDefault()
+    if (pinConfigured && !currentPin) {
+      setError('Please enter your current PIN.')
+      return
+    }
+    if (newPin.length < PIN_MIN_LENGTH || newPin.length > PIN_MAX_LENGTH) {
+      setError(`New PIN must be ${PIN_MIN_LENGTH} to ${PIN_MAX_LENGTH} digits.`)
+      return
+    }
+    if (newPin !== confirmPin) {
+      setError('New PIN and confirmation do not match.')
+      return
+    }
+
+    try {
+      const wasConfigured = pinConfigured
+      resetPin(currentPin, newPin)
+      setPinConfigured(true)
+      setCurrentPin('')
+      setNewPin('')
+      setConfirmPin('')
+      setError('')
+      onNotify(wasConfigured ? 'PIN has been reset successfully.' : 'PIN has been set successfully.')
+    } catch (err) {
+      setError(err.message)
+    }
+  }
+
+  return (
+    <section className="panel pin-settings-panel">
+      <div className="pin-settings-header">
+        <div>
+          <h2>
+            <KeyRound size={18} style={{ verticalAlign: 'text-bottom', marginRight: 6 }} />
+            Security &amp; PIN
+          </h2>
+          <p className="muted small">
+            {pinConfigured
+              ? 'PIN protection is active. Reset your access PIN below.'
+              : 'Set a 4–8 digit PIN to require authentication when launching the app.'}
+          </p>
+        </div>
+        {onLock && pinConfigured && (
+          <button type="button" className="btn secondary" onClick={onLock}>
+            <Lock size={16} />
+            <span>Lock App</span>
+          </button>
+        )}
+      </div>
+
+      <form className="pin-reset-form" onSubmit={handleSubmit}>
+        {pinConfigured && (
+          <div className="pin-reset-field">
+            <label htmlFor="settings-current-pin">Current PIN</label>
+            <input
+              id="settings-current-pin"
+              type={showPins ? 'text' : 'password'}
+              inputMode="numeric"
+              pattern="[0-9]*"
+              maxLength={PIN_MAX_LENGTH}
+              placeholder="Current PIN"
+              value={currentPin}
+              onChange={handleDigitsChange(setCurrentPin)}
+              aria-label="Current PIN"
+            />
+          </div>
+        )}
+
+        <div className="pin-reset-field">
+          <label htmlFor="settings-new-pin">New PIN</label>
+          <input
+            id="settings-new-pin"
+            type={showPins ? 'text' : 'password'}
+            inputMode="numeric"
+            pattern="[0-9]*"
+            maxLength={PIN_MAX_LENGTH}
+            placeholder={`${PIN_MIN_LENGTH}–${PIN_MAX_LENGTH} digits`}
+            value={newPin}
+            onChange={handleDigitsChange(setNewPin)}
+            aria-label="New PIN"
+          />
+        </div>
+
+        <div className="pin-reset-field">
+          <label htmlFor="settings-confirm-pin">Confirm New PIN</label>
+          <input
+            id="settings-confirm-pin"
+            type={showPins ? 'text' : 'password'}
+            inputMode="numeric"
+            pattern="[0-9]*"
+            maxLength={PIN_MAX_LENGTH}
+            placeholder="Confirm PIN"
+            value={confirmPin}
+            onChange={handleDigitsChange(setConfirmPin)}
+            aria-label="Confirm New PIN"
+          />
+        </div>
+
+        <div className="pin-reset-actions">
+          <button type="submit" className="btn primary">
+            <KeyRound size={16} />
+            <span>{pinConfigured ? 'Reset PIN' : 'Set PIN'}</span>
+          </button>
+          <button
+            type="button"
+            className="btn"
+            onClick={() => setShowPins((s) => !s)}
+            aria-label={showPins ? 'Hide PINs' : 'Show PINs'}
+          >
+            {showPins ? <EyeOff size={16} /> : <Eye size={16} />}
+            <span>{showPins ? 'Hide' : 'Show'}</span>
+          </button>
+        </div>
+
+        {error && (
+          <p className="error" role="alert">
+            {error}
+          </p>
+        )}
+      </form>
+    </section>
   )
 }
