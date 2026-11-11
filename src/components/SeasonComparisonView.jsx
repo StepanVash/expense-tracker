@@ -513,7 +513,7 @@ export default function SeasonComparisonView({
 
           {/* YoY-style Cards for Season A vs Season B */}
           <div className="yoy-cards-grid">
-            <div className="card yoy-kpi-card">
+            <div className="card expense yoy-kpi-card">
               <div className="card-header">
                 <span className="card-label">Expenses Comparison</span>
                 <span className={`delta-badge ${diffExpenses <= 0 ? 'good' : 'warning'}`}>
@@ -532,7 +532,7 @@ export default function SeasonComparisonView({
               </div>
             </div>
 
-            <div className="card yoy-kpi-card">
+            <div className="card income yoy-kpi-card">
               <div className="card-header">
                 <span className="card-label">Income Comparison</span>
                 <span className={`delta-badge ${diffIncome >= 0 ? 'good' : 'warning'}`}>
@@ -551,7 +551,7 @@ export default function SeasonComparisonView({
               </div>
             </div>
 
-            <div className="card yoy-kpi-card">
+            <div className="card savings yoy-kpi-card">
               <div className="card-header">
                 <span className="card-label">Net Savings Comparison</span>
                 <span className={`delta-badge ${diffSavings >= 0 ? 'good' : 'warning'}`}>
