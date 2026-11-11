@@ -25,6 +25,7 @@ import CategoryPieChart from '../components/CategoryPieChart.jsx'
 
 export default function Dashboard({ month, onNavigateTab }) {
   const [dataVersion, setDataVersion] = useState(0)
+  const [breakdownType, setBreakdownType] = useState('expense') // 'expense' | 'income'
   const refresh = () => setDataVersion((v) => v + 1)
 
   const allTransactions = useMemo(() => getTransactions(), [dataVersion])
@@ -84,35 +85,11 @@ export default function Dashboard({ month, onNavigateTab }) {
     }
   }, [transactions, categories, budgetMap])
 
-  // --- Category breakdown for expenses
-  const expenseCategories = useMemo(() => {
-    const groups = new Map()
-
-    for (const t of transactions) {
-      if (t.type !== 'expense') continue
-      const cat = categoryMap.get(t.categoryId)
-      const key = cat ? cat.id : 'uncategorized'
-      const existing = groups.get(key) || {
-        id: key,
-        name: cat ? cat.name : 'Uncategorized',
-        emoji: cat ? cat.emoji : '❓',
-        color: cat ? cat.color : '#94a3b8',
-        actual: 0,
-        count: 0,
-      }
-      existing.actual += t.amount
-      existing.count += 1
-      groups.set(key, existing)
-    }
-
-    const list = Array.from(groups.values()).map((item) => ({
-      ...item,
-      value: Math.round(item.actual * 100) / 100,
-      percentage: totals.expenses > 0 ? Math.round((item.actual / totals.expenses) * 100) : 0,
-    }))
-
-    return list.sort((a, b) => b.actual - a.actual)
-  }, [transactions, categoryMap, totals.expenses])
+  // --- Category breakdown for expenses or income
+  const breakdownCategories = useMemo(() => {
+    const totalAmount = breakdownType === 'income' ? totals.income : totals.expenses
+    return buildCategoryBreakdown(transactions, categoryMap, breakdownType, totalAmount)
+  }, [transactions, categoryMap, breakdownType, totals.expenses, totals.income])
 
   // --- Top 5 largest single expenses
   const topExpenses = useMemo(() => {
@@ -242,19 +219,40 @@ export default function Dashboard({ month, onNavigateTab }) {
         />
       </section>
 
-      {/* Middle Grid: Expense Breakdown Donut & Top 5 Largest Expenses */}
+      {/* Middle Grid: Category Breakdown Donut & Top 5 Largest Expenses */}
       <div className="dashboard-grid">
         {/* Left Column: Category Chart & Legend */}
         <div className="panel chart-panel">
           <div className="panel-title-row">
-            <h2>Expense Breakdown</h2>
-            <span className="count">{expenseCategories.length} categories</span>
+            <div className="chart-title-group">
+              <h2>{breakdownType === 'income' ? 'Income Breakdown' : 'Expense Breakdown'}</h2>
+              <span className="count">{breakdownCategories.length} categories</span>
+            </div>
+
+            <div className="view-mode-toggle compact" role="group" aria-label="Breakdown chart type">
+              <button
+                type="button"
+                className={`mode-btn ${breakdownType === 'expense' ? 'active' : ''}`}
+                aria-pressed={breakdownType === 'expense'}
+                onClick={() => setBreakdownType('expense')}
+              >
+                Expenses
+              </button>
+              <button
+                type="button"
+                className={`mode-btn ${breakdownType === 'income' ? 'active' : ''}`}
+                aria-pressed={breakdownType === 'income'}
+                onClick={() => setBreakdownType('income')}
+              >
+                Income
+              </button>
+            </div>
           </div>
 
-          <CategoryPieChart data={expenseCategories} />
+          <CategoryPieChart data={breakdownCategories} type={breakdownType} />
 
           <div className="category-legend-list">
-            {expenseCategories.map((cat) => (
+            {breakdownCategories.map((cat) => (
               <div key={cat.id} className="legend-row">
                 <span className="swatch" style={{ background: cat.color }} />
                 <span className="legend-emoji">{cat.emoji}</span>
@@ -267,8 +265,10 @@ export default function Dashboard({ month, onNavigateTab }) {
                 </span>
               </div>
             ))}
-            {expenseCategories.length === 0 && (
-              <p className="muted small text-center">No expense categories to show</p>
+            {breakdownCategories.length === 0 && (
+              <p className="muted small text-center">
+                {breakdownType === 'income' ? 'No income categories to show' : 'No expense categories to show'}
+              </p>
             )}
           </div>
         </div>
@@ -522,4 +522,34 @@ function BudgetRow({ row, month, onBudgetChanged }) {
       </td>
     </tr>
   )
+}
+
+/** Group month transactions of a given type ('expense' | 'income') by category for chart & legend display. */
+function buildCategoryBreakdown(transactions, categoryMap, type, totalAmount) {
+  const groups = new Map()
+
+  for (const t of transactions) {
+    if (t.type !== type) continue
+    const cat = categoryMap.get(t.categoryId)
+    const key = cat ? cat.id : 'uncategorized'
+    const existing = groups.get(key) || {
+      id: key,
+      name: cat ? cat.name : 'Uncategorized',
+      emoji: cat ? cat.emoji : '❓',
+      color: cat ? cat.color : '#94a3b8',
+      actual: 0,
+      count: 0,
+    }
+    existing.actual += t.amount
+    existing.count += 1
+    groups.set(key, existing)
+  }
+
+  return Array.from(groups.values())
+    .map((item) => ({
+      ...item,
+      value: Math.round(item.actual * 100) / 100,
+      percentage: totalAmount > 0 ? Math.round((item.actual / totalAmount) * 100) : 0,
+    }))
+    .sort((a, b) => b.actual - a.actual)
 }

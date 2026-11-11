@@ -3,10 +3,10 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts'
 import { formatMoney } from '../format.js'
 
 /**
- * Interactive Donut Chart for category expenses.
+ * Interactive Donut Chart for category breakdown (expenses or income).
  * Includes a pure SVG fallback when running in headless / test environments without container layout.
  */
-export default function CategoryPieChart({ data }) {
+export default function CategoryPieChart({ data, type = 'expense' }) {
   const [activeIndex, setActiveIndex] = useState(null)
 
   const chartData = useMemo(() => {
@@ -24,7 +24,9 @@ export default function CategoryPieChart({ data }) {
   if (!chartData.length) {
     return (
       <div className="chart-empty">
-        <p className="muted">No expense data to display in chart</p>
+        <p className="muted">
+          {type === 'income' ? 'No income data to display in chart' : 'No expense data to display in chart'}
+        </p>
       </div>
     )
   }
@@ -53,14 +55,14 @@ export default function CategoryPieChart({ data }) {
               />
             ))}
           </Pie>
-          <Tooltip content={<CustomTooltip />} />
+          <Tooltip content={<CustomTooltip type={type} />} />
         </PieChart>
       </ResponsiveContainer>
     </div>
   )
 }
 
-function CustomTooltip({ active, payload }) {
+function CustomTooltip({ active, payload, type }) {
   if (active && payload && payload.length) {
     const item = payload[0].payload
     return (
@@ -69,7 +71,9 @@ function CustomTooltip({ active, payload }) {
           <span>{item.emoji}</span> <strong>{item.name}</strong>
         </div>
         <div className="tooltip-value">{formatMoney(item.value)}</div>
-        <div className="tooltip-pct muted small">{item.percentage}% of expenses</div>
+        <div className="tooltip-pct muted small">
+          {item.percentage}% of {type === 'income' ? 'income' : 'expenses'}
+        </div>
       </div>
     )
   }

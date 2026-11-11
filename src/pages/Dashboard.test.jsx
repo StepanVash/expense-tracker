@@ -145,4 +145,39 @@ describe('Dashboard Page', () => {
     expect(getBudgetCard().textContent).toContain('over')
     expect(getBudgetCard().textContent).toContain('130% of plan spent')
   })
+
+  it('switches the breakdown chart and legend between Expenses and Income', () => {
+    const gCat = cat('Grocery')
+    const sCat = cat('Salary')
+    const bCat = cat('Bonus') || cat('Gift') || storage.addCategory({ name: 'Freelance', emoji: '💻', type: 'income', color: '#3b82f6' })
+
+    storage.addTransaction({ type: 'expense', date: `${MONTH}-05`, amount: 400, categoryId: gCat.id })
+    storage.addTransaction({ type: 'income', date: `${MONTH}-09`, amount: 8000, categoryId: sCat.id })
+    storage.addTransaction({ type: 'income', date: `${MONTH}-12`, amount: 2000, categoryId: bCat.id })
+
+    mount()
+
+    const chartPanel = container.querySelector('.chart-panel')
+    expect(chartPanel.textContent).toContain('Expense Breakdown')
+    expect(chartPanel.querySelector('.category-legend-list').textContent).toContain('Grocery')
+    expect(chartPanel.querySelector('.category-legend-list').textContent).not.toContain('Salary')
+
+    const switcher = chartPanel.querySelector('[aria-label="Breakdown chart type"]')
+    const incomeBtn = [...switcher.querySelectorAll('button')].find((b) => b.textContent.trim() === 'Income')
+    const expensesBtn = [...switcher.querySelectorAll('button')].find((b) => b.textContent.trim() === 'Expenses')
+
+    act(() => incomeBtn.click())
+    expect(chartPanel.textContent).toContain('Income Breakdown')
+    expect(chartPanel.textContent).toContain('2 categories')
+    const incomeLegend = chartPanel.querySelector('.category-legend-list').textContent
+    expect(incomeLegend).toContain('Salary')
+    expect(incomeLegend).toContain('80%')
+    expect(incomeLegend).toContain(bCat.name)
+    expect(incomeLegend).toContain('20%')
+    expect(incomeLegend).not.toContain('Grocery')
+
+    act(() => expensesBtn.click())
+    expect(chartPanel.textContent).toContain('Expense Breakdown')
+    expect(chartPanel.querySelector('.category-legend-list').textContent).toContain('Grocery')
+  })
 })
