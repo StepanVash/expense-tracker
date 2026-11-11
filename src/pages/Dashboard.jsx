@@ -70,10 +70,6 @@ export default function Dashboard({ month, onNavigateTab }) {
     const savings = income - expenses
     const savingsRate = income > 0 ? Math.round((savings / income) * 100) : 0
 
-    const plannedExpenses = categories
-      .filter((c) => c.type === 'expense')
-      .reduce((sum, c) => sum + (budgetMap.get(c.id) || 0), 0)
-
     const plannedIncome = categories
       .filter((c) => c.type === 'income')
       .reduce((sum, c) => sum + (budgetMap.get(c.id) || 0), 0)
@@ -83,7 +79,6 @@ export default function Dashboard({ month, onNavigateTab }) {
       expenses,
       savings,
       savingsRate,
-      plannedExpenses,
       plannedIncome,
       count: transactions.length,
     }
@@ -203,7 +198,7 @@ export default function Dashboard({ month, onNavigateTab }) {
         <SummaryCard
           label="Expenses"
           value={totals.expenses}
-          subtext={totals.plannedExpenses > 0 ? `Budget: ${formatMoney(totals.plannedExpenses)}` : undefined}
+          subtext={tablePlannedExpenses > 0 ? `Budget: ${formatMoney(tablePlannedExpenses)}` : undefined}
           icon={TrendingDown}
           tone="expense"
         />
@@ -217,29 +212,29 @@ export default function Dashboard({ month, onNavigateTab }) {
         <SummaryCard
           label="Budget Status"
           value={
-            totals.plannedExpenses > 0
-              ? totals.plannedExpenses - totals.expenses >= 0
-                ? totals.plannedExpenses - totals.expenses
-                : totals.expenses - totals.plannedExpenses
+            tablePlannedExpenses > 0
+              ? Math.abs(tablePlannedExpenses - totals.expenses)
               : 0
           }
-          isCustomDisplay={totals.plannedExpenses > 0}
+          isCustomDisplay
           customDisplay={
-            totals.plannedExpenses > 0
-              ? totals.plannedExpenses >= totals.expenses
-                ? `${formatMoney(totals.plannedExpenses - totals.expenses)} under`
-                : `${formatMoney(totals.expenses - totals.plannedExpenses)} over`
+            tablePlannedExpenses > 0
+              ? tablePlannedExpenses > totals.expenses
+                ? `${formatMoney(tablePlannedExpenses - totals.expenses)} under`
+                : tablePlannedExpenses < totals.expenses
+                  ? `${formatMoney(totals.expenses - tablePlannedExpenses)} over`
+                  : 'On budget'
               : 'No budget set'
           }
           subtext={
-            totals.plannedExpenses > 0
-              ? `${Math.round((totals.expenses / totals.plannedExpenses) * 100)}% of plan spent`
+            tablePlannedExpenses > 0
+              ? `${Math.round((totals.expenses / tablePlannedExpenses) * 100)}% of plan spent`
               : 'Set monthly budgets below'
           }
           icon={Target}
           tone={
-            totals.plannedExpenses > 0
-              ? totals.expenses <= totals.plannedExpenses
+            tablePlannedExpenses > 0
+              ? totals.expenses <= tablePlannedExpenses
                 ? 'income'
                 : 'expense'
               : 'neutral'

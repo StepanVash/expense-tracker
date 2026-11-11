@@ -109,5 +109,40 @@ describe('Dashboard Page', () => {
     const editBtn = container.querySelector(`[aria-label="Edit planned budget for ${gCat.name}"]`)
     expect(editBtn.textContent).toContain('400')
     expect(container.querySelector('.budget-summary-pills').textContent).toContain('400')
+
+    // Top Budget Status card also reflects the precalculated budget (400 under, 0% spent)
+    const cards = container.querySelectorAll('.card')
+    expect(cards[3].textContent).toContain('Budget Status')
+    expect(cards[3].textContent).toContain('400,00')
+    expect(cards[3].textContent).toContain('under')
+    expect(cards[3].textContent).toContain('0% of plan spent')
+  })
+
+  it('shows "No budget set" when no budget or category spending exists, and updates for over/on-budget states', () => {
+    mount()
+    const getBudgetCard = () => container.querySelectorAll('.card')[3]
+
+    expect(getBudgetCard().textContent).toContain('No budget set')
+    expect(getBudgetCard().textContent).toContain('Set monthly budgets below')
+
+    const gCat = cat('Grocery')
+    storage.setBudget(gCat.id, MONTH, 500)
+    storage.addTransaction({ type: 'expense', date: `${MONTH}-05`, amount: 500, categoryId: gCat.id })
+
+    act(() => root.unmount())
+    container.remove()
+    mount()
+
+    expect(getBudgetCard().textContent).toContain('On budget')
+    expect(getBudgetCard().textContent).toContain('100% of plan spent')
+
+    storage.addTransaction({ type: 'expense', date: `${MONTH}-06`, amount: 150, categoryId: gCat.id })
+    act(() => root.unmount())
+    container.remove()
+    mount()
+
+    expect(getBudgetCard().textContent).toContain('150,00')
+    expect(getBudgetCard().textContent).toContain('over')
+    expect(getBudgetCard().textContent).toContain('130% of plan spent')
   })
 })
