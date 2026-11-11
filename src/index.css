@@ -151,7 +151,7 @@ button {
 
 .app {
   width: 100%;
-  max-width: 1020px;
+  max-width: 1280px;
   margin-left: auto !important;
   margin-right: auto !important;
   padding: 16px 20px;
@@ -171,9 +171,14 @@ button {
 .insight-banner {
   width: 100%;
   max-width: 100%;
+  min-width: 0;
   box-sizing: border-box;
 }
 
+.dashboard-page > *,
+.year-view-page > *,
+.settings > *,
+.transactions > *,
 .dashboard-grid > *,
 .cards > *,
 .filters > * {
@@ -436,6 +441,7 @@ svg {
 /* ---------- dashboard page ---------- */
 .dashboard-page {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 20px;
 }
 
@@ -822,6 +828,7 @@ svg {
 /* ---------- year view ---------- */
 .year-view-page {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 20px;
 }
 
@@ -847,7 +854,10 @@ svg {
 }
 
 .year-matrix-wrapper {
+  width: 100%;
+  max-width: 100%;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   margin-top: 10px;
   border-radius: 10px;
   border: 1px solid var(--border);
@@ -856,11 +866,12 @@ svg {
 .year-matrix-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
 }
 
 .year-matrix-table th {
-  padding: 8px 10px;
+  padding: 8px 6px;
   border-bottom: 2px solid var(--border);
   text-align: right;
   font-weight: 600;
@@ -871,10 +882,11 @@ svg {
 
 .year-matrix-table th.sticky-col {
   text-align: left;
+  padding-left: 10px;
 }
 
 .year-matrix-table td {
-  padding: 7px 10px;
+  padding: 7px 6px;
   border-bottom: 1px solid #f1f5f9;
   text-align: right;
   vertical-align: middle;
@@ -883,6 +895,7 @@ svg {
 
 .year-matrix-table td.sticky-col {
   text-align: left;
+  padding-left: 10px;
 }
 
 .sticky-col {
@@ -890,8 +903,27 @@ svg {
   left: 0;
   background: #ffffff;
   z-index: 5;
-  min-width: 180px;
+  min-width: 155px;
+  max-width: 195px;
+  overflow: hidden;
+  text-overflow: ellipsis;
   border-right: 1px solid var(--border);
+  box-shadow: 2px 0 6px -2px rgba(0, 0, 0, 0.08);
+}
+
+.year-matrix-table .cat-cell .swatch {
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 6px;
+}
+
+.year-matrix-table .cat-cell .cat-emoji {
+  margin-right: 5px;
+  vertical-align: middle;
+}
+
+.year-matrix-table .cat-cell .cat-name {
+  vertical-align: middle;
 }
 
 .matrix-category-row:hover td {
@@ -1144,6 +1176,7 @@ svg {
 /* ---------- settings / categories ---------- */
 .settings {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 20px;
 }
 
@@ -1325,6 +1358,7 @@ svg {
 /* ---------- transactions ---------- */
 .transactions {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 20px;
 }
 
@@ -2875,6 +2909,7 @@ svg {
   background: var(--surface) !important;
   color: #f0f6fc !important;
   border-right: 1px solid var(--border) !important;
+  box-shadow: 2px 0 8px -2px rgba(0, 0, 0, 0.45);
 }
 
 [data-theme="dark"] th.sticky-col {
