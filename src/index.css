@@ -916,15 +916,18 @@ svg {
   padding-left: 10px;
 }
 
+.year-matrix-table .sticky-col {
+  min-width: 155px;
+  max-width: 195px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .sticky-col {
   position: sticky;
   left: 0;
   background: #ffffff;
   z-index: 5;
-  min-width: 155px;
-  max-width: 195px;
-  overflow: hidden;
-  text-overflow: ellipsis;
   border-right: 1px solid var(--border);
   box-shadow: 2px 0 6px -2px rgba(0, 0, 0, 0.08);
 }
@@ -3060,9 +3063,23 @@ svg {
 }
 
 .cat-name-cell {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  white-space: nowrap;
+}
+
+.cat-name-cell .swatch {
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 8px;
+}
+
+.cat-name-cell .emoji {
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 6px;
+}
+
+.cat-name-cell .name {
+  vertical-align: middle;
 }
 
 .matrix-total-row {
@@ -3666,7 +3683,7 @@ svg {
 
 .seasonal-matrix-table th,
 .yoy-table th {
-  padding: 12px 18px;
+  padding: 11px 14px;
   border-bottom: 2px solid var(--border);
   text-align: right;
   font-weight: 600;
@@ -3675,7 +3692,9 @@ svg {
 }
 
 .seasonal-matrix-table th.sticky-col,
-.yoy-table th.sticky-col {
+.yoy-table th.sticky-col,
+.seasonal-matrix-table td.sticky-col,
+.yoy-table td.sticky-col {
   text-align: left;
   min-width: 180px;
   width: 26%;
@@ -3688,11 +3707,6 @@ svg {
   text-align: right;
   vertical-align: middle;
   white-space: nowrap;
-}
-
-.seasonal-matrix-table td.sticky-col,
-.yoy-table td.sticky-col {
-  text-align: left;
 }
 
 .seasonal-matrix-table .season-col {
